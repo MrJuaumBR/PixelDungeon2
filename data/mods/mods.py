@@ -1,7 +1,7 @@
-import os, sys, importlib
+import os, sys, importlib, threading
+import pygameengine
 
 _ACCEPTABLE_FILES = ['pyplugin','mod','pymod','py']
-
 
 class Mods:
     mods:list
@@ -12,24 +12,53 @@ class Mods:
         self.mods = []
         self.paths = []
         self.load_mods()
-        print(f'{len(self.mods)} Mods Loaded!')
 
-    def import_mods(self):
+    def number_of_mods(self) -> int:
+        return int(len(self.mods_data.keys())/2)
+
+    def import_mods(self, game_engine: pygameengine.PyGameEngine, game_object:object):
+        """
+        Import Mods
+        Will be imported a _import object and the mod itself
+        """
         # Try Import Mods
-        print('Importing Mods...')
         for mod_metadata, mod_path_os in self.mods:
             try:
                 mod_fixed_name = mod_metadata['Mod_Name'].replace(' ','_')
                 mod_path = (mod_path_os.replace('/','.').replace('\\','.').replace('.py',''))[2:] # Get Mod_Path and remove all / and \ and .py
-                self.mods_data[mod_fixed_name+'_import'] =importlib.import_module(mod_path)
-                self.mods_data[mod_fixed_name] = self.mods_data[mod_fixed_name+'_import'].Mod()
+                if mod_metadata['Mod_RCode'] != 1:
+                    self.mods_data[mod_fixed_name+'_import'] =importlib.import_module(mod_path)
+                    self.mods_data[mod_fixed_name] = self.mods_data[mod_fixed_name+'_import'].Mod(game_engine=game_engine,game_object=game_object)
             except Exception as e:
                 print(f'Error importing {mod_metadata["Mod_Name"]}: {e}')
         
         print('Mods Imported!')
 
+    def draw_mods(self, game_engine: pygameengine.PyGameEngine, game_object:object, **kwargs):
+        """
+        Independent Mod Page Handler
+        """
+        for mod_key in self.mods_data.keys():
+            if mod_key.endswith('_import'):
+                pass
+            else:
+                self._indiv_mod_page_handler(game_engine=game_engine, game_object=game_object, mod_key=mod_key, kwargs=kwargs)
+    
+    def _indiv_mod_page_handler(self, game_engine: pygameengine.PyGameEngine, game_object:object, mod_key, kwargs):
+        """
+        Individual Mod Page Handler
+        
+        → it will get all mods and load invidiualy mod page handler if not ends with "_import"
+        → Will run with threading for make less impact into Performance of the game
+        """
+        if mod_key.endswith('_import'):
+            pass
+        else:
+            if str(mod_key).replace("_"," ").replace('/','') in game_object.mods_enabled:
+                mod = self.mods_data[mod_key]
+                threading.Thread(target=mod.screen_handler,name=f'PixelDungeon2-{str(mod_key).replace(" ","-").replace('/','')}', args=(game_engine, game_object, kwargs)).start()
+
     def load_mods(self):
-        print('Loading Mods...')
         for file in os.listdir('./data/mods/'):
             if os.path.isfile(f'./data/mods/{file}'):
                 x = file.split('.')
@@ -53,7 +82,8 @@ class Mods:
                 'Mod_Author':'',
                 'Mod_Version':'',
                 'Mod_Description':'',
-                'Has_Mod_Class':False
+                'Has_Mod_Class':False,
+                'Mod_RCode':0
             }
             
             # Get Metadata
@@ -66,6 +96,8 @@ class Mods:
                     Metadata['Mod_Version'] = line.split(b':')[-1].strip().decode('utf-8')
                 elif line.startswith(b'MTD_Mod_Description:'):
                     Metadata['Mod_Description'] = line.split(b':')[-1].strip().decode('utf-8')
+                elif line.startswith(b'MTD_Mod_RCode:'):
+                    Metadata['Mod_RCode'] = int(line.split(b':')[-1].strip().decode('utf-8'))
                 
             # Get Mod Class
             try:
@@ -81,8 +113,11 @@ class Mods:
                 Metadata['Has_Mod_Class'] = False
             
             for key in Metadata.keys():
-                if Metadata[key] in [' ','',None,False]:        
-                    integrity = False
+                if key in ['Mod_RCode']: # This will be ignored
+                    pass
+                else:
+                    if Metadata[key] in [' ','',None,False]:        
+                        integrity = False
             
             if integrity:
                 return True, Metadata
@@ -92,7 +127,6 @@ class Mods:
         return False, None        
     
     def check_integrity(self):
-        print('Checking Mod Integrity...')
         for path in self.paths.copy():
             sucess, metadata = self._check_integrity(path)
             if not sucess:

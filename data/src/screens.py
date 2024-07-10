@@ -1,4 +1,5 @@
 from .ingame import *
+from .config import *
 
 def modsscreen():
     """
@@ -7,12 +8,17 @@ def modsscreen():
     run = True
     Back_Button = pyge.Button(pge, (5*RATIO, 5*RATIO), PPF12, '< BACK', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
     
-    Warn_LongText = pyge.Longtext(pge, (0, (DEFAULT_SCREEN_SIZE[1]-100)*RATIO), PPF14, f'A Total of: {len(mods.mods)} mods loaded!\nPlease be careful about the mods you use, mods can be used for scam peoples, and then, steal information.', [pge.Colors.WHITE, P_DARKGRAY, pge.Colors.BROWN])
+    Warn_LongText = pyge.Longtext(pge, (0, (DEFAULT_SCREEN_SIZE[1]-100)*RATIO), PPF14, f'A Total of: {mods.number_of_mods()} mods loaded!\nPlease be careful about the mods you use, mods can be used for scam peoples, and then, steal information.', [pge.Colors.WHITE, P_DARKGRAY, pge.Colors.BROWN])
+    Warn_LongText2 = pyge.Longtext(pge, (20*RATIO, 550*RATIO), PPF14,  '! Be careful about the mods you use, mods can be used for scam peoples, and then, steal information. More Mods = Minus Perfomance.', [pge.Colors.WHITE, pge.Colors.BLACK, pge.Colors.BLACK])
     
-    mods_widgets = [Back_Button, Warn_LongText]
+    mods_widgets = [Back_Button, Warn_LongText, Warn_LongText2]
+    
+    buttons = []
+    buttons_ids = []
     
     while run:        
         GAME_SCREEN = 3
+        GameObject.screen_id = GAME_SCREEN
         if Back_Button.value: run = False
         
         nx,ny = 0,30
@@ -22,6 +28,31 @@ def modsscreen():
             pge.draw_text(((nx+35)*RATIO,(ny+55)*RATIO), str(mod[1])[:24], PPF10, pge.Colors.GRAY) # Mod Path
             pge.draw_text(((nx+35)*RATIO,(ny+70)*RATIO),mod[0]['Mod_Author'][:24], PPF12, pge.Colors.WHITE) # Mod Author
             pge.draw_text(((nx+35)*RATIO,(ny+85)*RATIO), mod[0]['Mod_Version'][:24], PPF12, pge.Colors.WHITE) # Mod Version
+            pge.draw_text(((nx+190)*RATIO,(ny+70)*RATIO),"Enabled" if mod[0]["Mod_Name"] in CONFIG['enable_mods'] else "Disabled", PPF10, P_PEAR if mod[0]['Mod_Name'] in CONFIG['enable_mods'] else P_LIGHTRED)
+            
+            button_id_select = f'{mod[0]["Mod_Name"]}select_button'
+            button_id_delete = f'{mod[0]["Mod_Name"]}delete_button'
+            
+            
+            if ((button_id_select not in buttons_ids) or (button_id_delete not in buttons_ids)):
+                if not ((pge.findWidgetById(button_id_select) and pge.findWidgetById(button_id_delete))):
+                    select_btn = pyge.Button(pge, ((nx+40)*RATIO, (ny+142)*RATIO), PPF14, 'SELECT', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK],id=button_id_select)
+                    delete_btn = pyge.Button(pge, ((nx+190)*RATIO, (ny+142)*RATIO), PPF14, 'DELETE', [pge.Colors.RED, P_DARKGRAY, pge.Colors.BLACK],id=button_id_delete)
+                    select_btn.click_time = 0.3
+                    delete_btn.click_time = 0.3
+                    buttons.append([select_btn, delete_btn])
+                    buttons_ids.append(button_id_select)
+                    buttons_ids.append(button_id_delete)
+                    mods_widgets.append(select_btn)
+                    mods_widgets.append(delete_btn)
+                else:
+                    select_btn = pge.findWidgetById(button_id_select)
+                    delete_btn = pge.findWidgetById(button_id_delete)
+                    buttons.append([select_btn, delete_btn])
+                    buttons_ids.append(button_id_select)
+                    buttons_ids.append(button_id_delete)
+                    mods_widgets.append(select_btn)
+                    mods_widgets.append(delete_btn)
             
             # Description
             texts = split_lines(mod[0]['Mod_Description'][:64], PPF12, 128*RATIO)
@@ -30,7 +61,17 @@ def modsscreen():
                 pge.draw_text(pos, line, PPF10, pge.Colors.WHITE)
                 pos[1] += PPF10.size(line)[1]
                 
-            
+        for mods_buttons in buttons:
+            select:pyge.Button = mods_buttons[0]
+            delete:pyge.Button = mods_buttons[1]
+            mod_name = str(select._id).replace('select_button','')
+            if select.value:
+                if mod_name not in CONFIG['enable_mods']:
+                    CONFIG['enable_mods'].append(mod_name)
+                    GameObject.mods_enabled = CONFIG['enable_mods']
+                elif mod_name in CONFIG['enable_mods']:
+                    CONFIG['enable_mods'].remove(mod_name)
+                    GameObject.mods_enabled = CONFIG['enable_mods']
             
             nx += r.width + 5
             if nx > CURRENT_SCREEN_SIZE[0]-60:
@@ -49,12 +90,14 @@ def modsscreen():
         
         ShowFPS()
         pge.draw_widgets(mods_widgets)
+        mods.draw_mods(pge,GameObject)
         # Screen Title + Shadow
         pge.draw_text((13*RATIO,15*RATIO),'Mods', GGF32, pge.Colors.DARKGRAY)
         pge.draw_text((15*RATIO,15*RATIO), 'Mods', GGF34, pge.Colors.WHITE)
         pge.update()
         pge.fill(pge.Colors.BLACK)
         pge.fpsw()
+    db.update_value('cfg', 'data',0, CONFIG)
 
 def options():
     """
@@ -73,19 +116,21 @@ def options():
     FPSDynamic_checkbox = pyge.Checkbox(pge, (20*RATIO, 300*RATIO), PPF14, 'Dynamic FPS', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY])
     FPSDynamic_checkbox.value = CONFIG['dynamic_fps']
     
-    Mods_Button = pyge.Button(pge, (25*RATIO, 400*RATIO), PPF26, 'MODS', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+    Back_Button = pyge.Button(pge, (5*RATIO, 5*RATIO), PPF12, '< BACK', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
     
     options_widgets = [
+        Back_Button,
         Volume_Slider,
         Screen_size_select,
         FPS_select,
         Fullscreen_checkbox,
         ShowFPS_checkbox,
-        Mods_Button,
         FPSDynamic_checkbox
     ]
     while run:
         GAME_SCREEN = 2
+        GameObject.screen_id = GAME_SCREEN
+        if Back_Button.value: run = False
         # Screen Title + Shadow
         pge.draw_text((13*RATIO,15*RATIO),'Options', GGF32, pge.Colors.DARKGRAY)
         pge.draw_text((15*RATIO,15*RATIO), 'Options', GGF34, pge.Colors.WHITE)
@@ -103,8 +148,6 @@ def options():
         CONFIG['fullscreen'] = Fullscreen_checkbox.value
         CONFIG['dynamic_fps'] = FPSDynamic_checkbox.value
         
-        if Mods_Button.value: modsscreen()
-        
         for ev in pge.events:
             if ev.type == pg.QUIT: pge.exit()
             elif ev.type == pg.KEYUP:
@@ -116,6 +159,7 @@ def options():
 
         ShowFPS()
         pge.draw_widgets(options_widgets)
+        mods.draw_mods(pge,GameObject)
         pge.update()
         pge.fill(pge.Colors.BLACK)
         pge.fpsw()

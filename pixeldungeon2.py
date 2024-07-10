@@ -1,5 +1,5 @@
 from data.src.config import *
-from data.src.screens import options, save_select
+from data.src.screens import options, save_select, modsscreen
 
 
 def confirm_exit():
@@ -28,6 +28,14 @@ def confirm_exit():
         
         # Texts
         pge.draw_text((50*RATIO,100*RATIO), 'Are you sure you want to exit?', PPF24, pge.Colors.WHITE)
+        
+        if start_frame >= pge.TimeSys.s2f(0.5):
+            if Confirm_Button.value:
+                will_exit = True
+                run = False
+            elif Cancel_Button.value:
+                will_exit = False
+                run = False
         
         for ev in pge.events:
             if ev.type == pg.QUIT: pge.exit()
@@ -58,15 +66,19 @@ def main():
     pge.enableFPS_unstable(CONFIG['dynamic_fps'])
     Play_Button = pyge.Button(pge, (25*RATIO, 100*RATIO), PPF26, 'PLAY', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
     Options_Button = pyge.Button(pge, (25*RATIO, 138*RATIO), PPF26, 'OPTIONS', [P_LIGHTBLUE, P_DARKGRAY, pge.Colors.BLACK])
-    Exit_Button = pyge.Button(pge, (25*RATIO, 176*RATIO), PPF26, 'EXIT', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
+    Mods_Button = pyge.Button(pge, (25*RATIO, 176*RATIO), PPF26, 'MODS', [P_YELLOW, P_DARKGRAY, pge.Colors.BLACK])
+    Exit_Button = pyge.Button(pge, (25*RATIO, 214*RATIO), PPF26, 'EXIT', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
     main_widgets = [
         Play_Button,
         Options_Button,
+        Mods_Button,
         Exit_Button
     ]
-    mods.import_mods()
+    GameObject.pid = os.getpid()
+    mods.import_mods(pge, GameObject)
     while True:
         GAME_SCREEN = 0
+        GameObject.screen_id = GAME_SCREEN
         # Game Title + Shadow
         pge.draw_text((13*RATIO,15*RATIO), f'{GAME_TITLE}', GGF54,pge.Colors.DARKGRAY)
         pge.draw_text((15*RATIO,15*RATIO), f'{GAME_TITLE}', GGF56,pge.Colors.WHITE)
@@ -76,9 +88,13 @@ def main():
         
         # Buttons
         if Play_Button.value and GAME_SCREEN != 5:
-            save_select()
+            try:
+                save_select()
+            except Exception as e:
+                raise e
         if Options_Button.value and GAME_SCREEN != 5:
             options()
+        if Mods_Button.value and GAME_SCREEN != 5: modsscreen()
         if Exit_Button.value:
             confirm_exit()
         
@@ -91,6 +107,7 @@ def main():
         
         ShowFPS()
         pge.draw_widgets(main_widgets)        
+        mods.draw_mods(pge,GameObject)
         pge.update()
         pge.fill(pge.Colors.BLACK)
         pge.fpsw()
@@ -99,4 +116,5 @@ def main():
 def run():
     if __name__ == '__main__':
         main()
+        pge.is_running = False
 run()
