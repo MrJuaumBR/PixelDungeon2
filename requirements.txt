@@ -1,3 +1,5 @@
 pygame
 maxpygame>=0.1.6.1
-JPyDB>=0.8.1
+requests
+xlwt
+JPyDB # Ignore

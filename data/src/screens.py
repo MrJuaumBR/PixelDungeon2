@@ -116,6 +116,8 @@ def options():
     FPSDynamic_checkbox = pyge.Checkbox(pge, (20*RATIO, 300*RATIO), PPF14, 'Dynamic FPS', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY])
     FPSDynamic_checkbox.value = CONFIG['dynamic_fps']
     
+    RenderDistance_select = pyge.Select(pge, (300*RATIO, 340*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c}' for c in RenderDistance_OPTIONS], CONFIG['RenderDistance'], False)
+    
     Back_Button = pyge.Button(pge, (5*RATIO, 5*RATIO), PPF12, '< BACK', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
     
     options_widgets = [
@@ -125,7 +127,8 @@ def options():
         FPS_select,
         Fullscreen_checkbox,
         ShowFPS_checkbox,
-        FPSDynamic_checkbox
+        FPSDynamic_checkbox,
+        RenderDistance_select
     ]
     while run:
         GAME_SCREEN = 2
@@ -139,6 +142,7 @@ def options():
         pge.draw_text((15*RATIO,70*RATIO), f'Volume: {int(Volume_Slider.value*100)}', PPF16, pge.Colors.WHITE)
         pge.draw_text((20*RATIO,140*RATIO), f'Screen Size: ', PPF16, pge.Colors.WHITE)
         pge.draw_text((20*RATIO,180*RATIO), f'FPS:', PPF16, pge.Colors.WHITE)
+        pge.draw_text((20*RATIO, 340*RATIO), f'Render Distance:', PPF16, pge.Colors.WHITE)
         
         # Update
         CONFIG['volume'] = round(Volume_Slider.value,2)
@@ -147,6 +151,7 @@ def options():
         CONFIG['show_fps'] = ShowFPS_checkbox.value
         CONFIG['fullscreen'] = Fullscreen_checkbox.value
         CONFIG['dynamic_fps'] = FPSDynamic_checkbox.value
+        CONFIG['RenderDistance'] = RenderDistance_select.value
         
         for ev in pge.events:
             if ev.type == pg.QUIT: pge.exit()

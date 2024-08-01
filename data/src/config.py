@@ -7,7 +7,7 @@ Config File
 
 # MetaData
 GAME_TITLE = 'Pixel Dungeon 2'
-GAME_VERSION = '1.0.0'
+GAME_VERSION = '1.0.1'
 
 """
 Screen Ids:
@@ -37,6 +37,13 @@ FPS_OPTIONS = [
     144,
     240
 ]
+RenderDistance_OPTIONS = [
+    300, # Px (W x H)
+    500,
+    700,
+    900,
+    1200
+]
 
 DEFAULT_CONFIG_JSON = {
     'volume':0.5,
@@ -47,7 +54,8 @@ DEFAULT_CONFIG_JSON = {
     'fullscreen':False,
     'fps':1,
     'dynamic_fps':True,
-    'enable_mods':[]
+    'enable_mods':[],
+    'RenderDistance':0
 }
 CONFIG:dict = DEFAULT_CONFIG_JSON
 

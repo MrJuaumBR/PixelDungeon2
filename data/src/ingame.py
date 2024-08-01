@@ -85,11 +85,13 @@ def game(save:Save):
                 if ev.key == pg.K_ESCAPE:
                     menu_isOpen:bool = not menu_isOpen
         
+        
         ShowFPS()
+        world.update()
         pge.update()
+        pge.fpsw()
         pge.fill(pge.Colors.BLACK)
         world.draw()
-        pge.fpsw()
     db.update_value('saves', 'data', save.id, save.getData())
 
 def create_save():

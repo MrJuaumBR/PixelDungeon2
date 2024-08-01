@@ -1,9 +1,11 @@
+from typing import Any
 from .config import *
 
 class Tile(pyge.pg.sprite.Sprite):
     id:str
     type:str='base_tile'
     position:pyge.pg.math.Vector2
+    start_pos:pyge.pg.math.Vector2
     size:pyge.pg.math.Vector2
     image:pyge.pg.SurfaceType
     
@@ -14,6 +16,7 @@ class Tile(pyge.pg.sprite.Sprite):
         self.rect.x = position.x
         self.rect.y = position.y
         self.position = position
+        self.start_pos = position.copy()
         self.size = size
         self.id = self.generate_id()
         
@@ -27,6 +30,10 @@ class Tile(pyge.pg.sprite.Sprite):
         
     def generate_id(self) -> str:
         return f'{self.type}_{os.urandom(8).hex()}'
+    
+    def update(self, *args: Any, **kwargs: Any) -> None:
+        self.rect.topleft = self.position
+        return super().update(*args, **kwargs)
     
     def draw(self, surface:pyge.pg.SurfaceType):
         surface.blit(self.image, self.rect)
