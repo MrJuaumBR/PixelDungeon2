@@ -19,6 +19,28 @@ def confirm_exit():
     start_frame = 0
     while run:
         GAME_SCREEN = 5
+        #@TODO: This should come first to keep the game responsive and with only one frame of input lag.
+        # Frame1 = Input of BLACKNESS (useless, also assumed the window is BLACKNESS, no you didn't paint it, you just got it)            
+        # Frame1 = Work of SCENE1
+        # Frame1 = VBLANK (Displaying SCENE1)
+        # Frame2 = Input from SCENE1 (that's right, there is one frame of input lag, and that how it is...)
+        # Frame2 = Work of SCENE2
+        # Frame2 = VBLANK (Displaying SCENE2)
+        # ...
+        for ev in pge.events:
+            if ev.type == pg.QUIT: pge.exit()
+            elif ev.type == pg.KEYUP:
+                if start_frame >= pge.TimeSys.s2f(0.5):
+                    if ev.key == pg.K_ESCAPE: run = False
+                    elif ev.key == pg.K_y:
+                        will_exit = True
+                        run = False
+                    elif ev.key == pg.K_n:
+                        will_exit = False
+                        run = False
+            elif ev.type == pg.MOUSEBUTTONDOWN:
+                if pge.getMousePressed(5)[3]: run = False
+
         if start_frame < pge.TimeSys.s2f(0.5):
             start_frame += 1
         
@@ -35,21 +57,7 @@ def confirm_exit():
                 run = False
             elif Cancel_Button.value:
                 will_exit = False
-                run = False
-        
-        for ev in pge.events:
-            if ev.type == pg.QUIT: pge.exit()
-            elif ev.type == pg.KEYUP:
-                if start_frame >= pge.TimeSys.s2f(0.5):
-                    if ev.key == pg.K_ESCAPE: run = False
-                    elif ev.key == pg.K_y:
-                        will_exit = True
-                        run = False
-                    elif ev.key == pg.K_n:
-                        will_exit = False
-                        run = False
-            elif ev.type == pg.MOUSEBUTTONDOWN:
-                if pge.getMousePressed(5)[3]: run = False
+                run = False        
                 
         pge.draw_widgets(exit_widgets)
         pge.update()
