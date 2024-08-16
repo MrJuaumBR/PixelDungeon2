@@ -18,8 +18,8 @@ class MapGenerator:
     width:int = 256
     height:int = 192
     pixel_size:int = 32
-    terrain:list[list[int,],]
-    str_terrain:list[list[str,],]
+    terrain:list[list[int,],] = []
+    str_terrain:list[list[str,],] = []
     map:str = 'default-map'
     maps_json:dict = None
     maps_file:io.BufferedReader = None

@@ -89,6 +89,7 @@ def game(save:Save):
         ShowFPS()
         world.update()
         pge.update()
+        mods.draw_mods(pge, GameObject, game_variables=dict(globals(), **locals()))
         pge.fpsw()
         pge.fill(pge.Colors.BLACK)
         world.draw()
@@ -241,12 +242,16 @@ def save_select():
             pos[0] += 235
         
         for buttons in buttons_save:
-            if buttons[0].value:
+            if current_save is not None:
+                if buttons[0].value:
+                    current_save = buttons[2]
+                    to_confirm_delete = False
+                elif buttons[1].value and not to_confirm_delete:
+                    to_confirm_delete = True
+                    to_delete_id = buttons[2].id
+            else:
                 current_save = buttons[2]
                 to_confirm_delete = False
-            elif buttons[1].value and not to_confirm_delete:
-                to_confirm_delete = True
-                to_delete_id = buttons[2].id
             
         for ev in pge.events:
             if ev.type == pg.QUIT: pge.exit()

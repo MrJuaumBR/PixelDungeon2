@@ -37,7 +37,7 @@ def modsscreen():
             if ((button_id_select not in buttons_ids) or (button_id_delete not in buttons_ids)):
                 if not ((pge.findWidgetById(button_id_select) and pge.findWidgetById(button_id_delete))):
                     select_btn = pyge.Button(pge, ((nx+40)*RATIO, (ny+142)*RATIO), PPF14, 'SELECT', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK],id=button_id_select)
-                    delete_btn = pyge.Button(pge, ((nx+190)*RATIO, (ny+142)*RATIO), PPF14, 'DELETE', [pge.Colors.RED, P_DARKGRAY, pge.Colors.BLACK],id=button_id_delete)
+                    delete_btn = pyge.Button(pge, ((nx+190)*RATIO, (ny+142)*RATIO), PPF14, 'DELETE', [pge.Colors.RED, P_DARKGRAY, pge.Colors.BLACK],id=button_id_delete,tip=('Delete Mod will remove from local storage.',PPF10))
                     select_btn.click_time = 0.3
                     delete_btn.click_time = 0.3
                     buttons.append([select_btn, delete_btn])
@@ -105,18 +105,21 @@ def options():
     """
     run = True
     Volume_Slider = pyge.Slider(pge, (20*RATIO, 100*RATIO), (740*RATIO,30*RATIO), [P_PEAR, P_DARKGRAY, P_DARKGRAY],value=CONFIG['volume'], fill_passed=True)
-    Screen_size_select = pyge.Select(pge, (250*RATIO, 140*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c[0]}x{c[1]}' for c in SCREEN_SIZE_OPTIONS], CONFIG['screen_size'], False)
-    FPS_select = pyge.Select(pge, (130*RATIO, 180*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c}' for c in FPS_OPTIONS], CONFIG['fps'], False)
-    Fullscreen_checkbox = pyge.Checkbox(pge, (20*RATIO, 220*RATIO), PPF14, 'Fullscreen', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY])
+    
+    Screen_size_select = pyge.Select(pge, (250*RATIO, 140*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c[0]}x{c[1]}' for c in SCREEN_SIZE_OPTIONS], CONFIG['screen_size'], False, tip=('Screen Size, using the size of your monitor with Fullscreen ON will make it gives a quality gain.',PPF10))
+    
+    FPS_select = pyge.Select(pge, (130*RATIO, 180*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c}' for c in FPS_OPTIONS], CONFIG['fps'], False, tip=('Sets the limit that the game will run of FPS.',PPF10))
+    
+    Fullscreen_checkbox = pyge.Checkbox(pge, (20*RATIO, 220*RATIO), PPF14, 'Fullscreen', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY],tip=('Enables fullscreen mode.',PPF10))
     Fullscreen_checkbox.value = CONFIG['fullscreen']
     
-    ShowFPS_checkbox = pyge.Checkbox(pge, (20*RATIO, 260*RATIO), PPF14, 'Show FPS', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY])
+    ShowFPS_checkbox = pyge.Checkbox(pge, (20*RATIO, 260*RATIO), PPF14, 'Show FPS', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY],tip=('Shows FPS counter.',PPF10))
     ShowFPS_checkbox.value = CONFIG['show_fps']
     
-    FPSDynamic_checkbox = pyge.Checkbox(pge, (20*RATIO, 300*RATIO), PPF14, 'Dynamic FPS', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY])
+    FPSDynamic_checkbox = pyge.Checkbox(pge, (20*RATIO, 300*RATIO), PPF14, 'Dynamic FPS', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY],tip=('Will make the Time system work better with FPS floating.',PPF10))
     FPSDynamic_checkbox.value = CONFIG['dynamic_fps']
     
-    RenderDistance_select = pyge.Select(pge, (300*RATIO, 340*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c}' for c in RenderDistance_OPTIONS], CONFIG['RenderDistance'], False)
+    RenderDistance_select = pyge.Select(pge, (300*RATIO, 340*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c}' for c in RenderDistance_OPTIONS], CONFIG['RenderDistance'], False, tip=('Render Distance in pixels.',PPF10))
     
     Back_Button = pyge.Button(pge, (5*RATIO, 5*RATIO), PPF12, '< BACK', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
     
@@ -139,7 +142,7 @@ def options():
         pge.draw_text((15*RATIO,15*RATIO), 'Options', GGF34, pge.Colors.WHITE)
         
         # Texts
-        pge.draw_text((15*RATIO,70*RATIO), f'Volume: {int(Volume_Slider.value*100)}', PPF16, pge.Colors.WHITE)
+        pge.draw_text((15*RATIO,70*RATIO), f'Volume: {int(Volume_Slider.value*100)}%', PPF16, pge.Colors.WHITE)
         pge.draw_text((20*RATIO,140*RATIO), f'Screen Size: ', PPF16, pge.Colors.WHITE)
         pge.draw_text((20*RATIO,180*RATIO), f'FPS:', PPF16, pge.Colors.WHITE)
         pge.draw_text((20*RATIO, 340*RATIO), f'Render Distance:', PPF16, pge.Colors.WHITE)
@@ -152,6 +155,7 @@ def options():
         CONFIG['fullscreen'] = Fullscreen_checkbox.value
         CONFIG['dynamic_fps'] = FPSDynamic_checkbox.value
         CONFIG['RenderDistance'] = RenderDistance_select.value
+        GameObject.config = CONFIG
         
         for ev in pge.events:
             if ev.type == pg.QUIT: pge.exit()

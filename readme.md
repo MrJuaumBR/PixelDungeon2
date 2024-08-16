@@ -4,8 +4,22 @@ Make sure to read the [License](./LICENSE) File.
 
 Install the [requirments](#requirements)
 
-*! Mods now supported !*<br>
-*! Map Hot-Reload !*
+
+## Warns
+- ! We are working on a Map Editor for this game, so the update will be delayed while I and others are working on these 2 projects simultaneously, please be patient.
+- ! About the *In-Game*, the in-game system is f*cked, and i will need to fix this, but also i need to rework this, so i will erase all and rewrite all of the system, more delay on the next updates.
+
+# Changes
+**V1.0.2**
+- Render Distance/Field Of View now are working, can help for low perfomance PCs;
+- Draw Map changed;
+- Fixed Sprites Backgrounds;
+- Re-worked Barrier Sprite;
+- Water & Barrier Animated;
+- FPS Independant Animation;
+- Gravity FPS Independant;
+- Tips for some Widgets;
+- Engine updated;
 
 # How to edit maps?
 is easy to edit maps, only follow this steps:

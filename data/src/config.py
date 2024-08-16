@@ -7,7 +7,7 @@ Config File
 
 # MetaData
 GAME_TITLE = 'Pixel Dungeon 2'
-GAME_VERSION = '1.0.1'
+GAME_VERSION = '1.0.2'
 
 """
 Screen Ids:
@@ -34,15 +34,17 @@ FPS_OPTIONS = [
     60,
     90,
     120,
-    144,
-    240
+    140,
+    280,
+    560,
+    1120
 ]
 RenderDistance_OPTIONS = [
-    300, # Px (W x H)
-    500,
-    700,
-    900,
-    1200
+    128,    # Px (W x H)
+    256,
+    512,
+    1024,
+    2048
 ]
 
 DEFAULT_CONFIG_JSON = {
@@ -55,7 +57,7 @@ DEFAULT_CONFIG_JSON = {
     'fps':1,
     'dynamic_fps':True,
     'enable_mods':[],
-    'RenderDistance':0
+    'RenderDistance':3
 }
 CONFIG:dict = DEFAULT_CONFIG_JSON
 
@@ -77,6 +79,7 @@ class GameObj:
     pid:int = 0
     pyDatabase:pyDatabase
     ratio:float = 1.0
+    config:dict
 
 GameObject = GameObj()
 
@@ -97,10 +100,12 @@ if 'cfg' in db.tables.keys():
         if not (key in CONFIG.keys()): # Fix for old configs
             CONFIG[key] = DEFAULT_CONFIG_JSON[key]
     GameObject.mods_enabled = CONFIG['enable_mods']
+    GameObject.config = CONFIG
 else:
     db.create_table('cfg', [('data',dict)])
     db.add_value('cfg', 'data', 0, DEFAULT_CONFIG_JSON)
     CONFIG:dict = DEFAULT_CONFIG_JSON
+    GameObject.config = CONFIG
 
 if not ('saves' in db.tables.keys()):
     db.create_table('saves', [('data',bytes)])
