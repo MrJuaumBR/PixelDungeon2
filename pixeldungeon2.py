@@ -18,6 +18,20 @@ def confirm_exit():
     ]
     start_frame = 0
     while run:
+        for ev in pge.events:
+            if ev.type == pg.QUIT: pge.exit()
+            elif ev.type == pg.KEYUP:
+                if start_frame >= pge.TimeSys.s2f(0.5):
+                    if ev.key == pg.K_ESCAPE: run = False
+                    elif ev.key == pg.K_y:
+                        will_exit = True
+                        run = False
+                    elif ev.key == pg.K_n:
+                        will_exit = False
+                        run = False
+            elif ev.type == pg.MOUSEBUTTONDOWN:
+                if pge.getMousePressed(5)[3]: run = False
+                
         GAME_SCREEN = 5
         if start_frame < pge.TimeSys.s2f(0.5):
             start_frame += 1
@@ -35,21 +49,7 @@ def confirm_exit():
                 run = False
             elif Cancel_Button.value:
                 will_exit = False
-                run = False
-        
-        for ev in pge.events:
-            if ev.type == pg.QUIT: pge.exit()
-            elif ev.type == pg.KEYUP:
-                if start_frame >= pge.TimeSys.s2f(0.5):
-                    if ev.key == pg.K_ESCAPE: run = False
-                    elif ev.key == pg.K_y:
-                        will_exit = True
-                        run = False
-                    elif ev.key == pg.K_n:
-                        will_exit = False
-                        run = False
-            elif ev.type == pg.MOUSEBUTTONDOWN:
-                if pge.getMousePressed(5)[3]: run = False
+                run = False            
                 
         pge.draw_widgets(exit_widgets)
         pge.update()
@@ -77,6 +77,13 @@ def main():
     GameObject.pid = os.getpid()
     mods.import_mods(pge, GameObject)
     while True:
+        for ev in pge.events:
+            if ev.type == pg.QUIT:
+                pge.exit()
+            elif ev.type == pg.KEYUP:
+                if ev.key == pg.K_ESCAPE:
+                    confirm_exit()
+
         GAME_SCREEN = 0
         GameObject.screen_id = GAME_SCREEN
         # Game Title + Shadow
@@ -96,14 +103,7 @@ def main():
             options()
         if Mods_Button.value and GAME_SCREEN != 5: modsscreen()
         if Exit_Button.value:
-            confirm_exit()
-        
-        for ev in pge.events:
-            if ev.type == pg.QUIT:
-                pge.exit()
-            elif ev.type == pg.KEYUP:
-                if ev.key == pg.K_ESCAPE:
-                    confirm_exit()
+            confirm_exit()                
         
         ShowFPS()
         pge.draw_widgets(main_widgets)        

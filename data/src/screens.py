@@ -16,7 +16,16 @@ def modsscreen():
     buttons = []
     buttons_ids = []
     
-    while run:        
+    while run:  
+        for ev in pge.events:
+            if ev.type == pg.QUIT:
+                pge.exit()
+            elif ev.type == pg.KEYDOWN:
+                if ev.key == pg.K_ESCAPE:
+                    run = False
+            elif ev.type == pg.MOUSEBUTTONDOWN:
+                if pge.getMousePressed(5)[3]: run = False
+                      
         GAME_SCREEN = 3
         GameObject.screen_id = GAME_SCREEN
         if Back_Button.value: run = False
@@ -78,15 +87,7 @@ def modsscreen():
                 nx = 0
                 ny += r.height
         if Back_Button.value:
-            run = False
-        for ev in pge.events:
-            if ev.type == pg.QUIT:
-                pge.exit()
-            elif ev.type == pg.KEYDOWN:
-                if ev.key == pg.K_ESCAPE:
-                    run = False
-            elif ev.type == pg.MOUSEBUTTONDOWN:
-                if pge.getMousePressed(5)[3]: run = False
+            run = False        
         
         ShowFPS()
         pge.draw_widgets(mods_widgets)
@@ -134,6 +135,15 @@ def options():
         RenderDistance_select
     ]
     while run:
+        for ev in pge.events:
+            if ev.type == pg.QUIT: pge.exit()
+            elif ev.type == pg.KEYUP:
+                if ev.key == pg.K_ESCAPE: run = False
+                elif ev.key == pg.K_F1:
+                    pdb.get_content()
+            elif ev.type == pg.MOUSEBUTTONDOWN:
+                if pge.getMousePressed(5)[3]: run = False
+
         GAME_SCREEN = 2
         GameObject.screen_id = GAME_SCREEN
         if Back_Button.value: run = False
@@ -155,16 +165,7 @@ def options():
         CONFIG['fullscreen'] = Fullscreen_checkbox.value
         CONFIG['dynamic_fps'] = FPSDynamic_checkbox.value
         CONFIG['RenderDistance'] = RenderDistance_select.value
-        GameObject.config = CONFIG
-        
-        for ev in pge.events:
-            if ev.type == pg.QUIT: pge.exit()
-            elif ev.type == pg.KEYUP:
-                if ev.key == pg.K_ESCAPE: run = False
-                elif ev.key == pg.K_F1:
-                    pdb.get_content()
-            elif ev.type == pg.MOUSEBUTTONDOWN:
-                if pge.getMousePressed(5)[3]: run = False
+        GameObject.config = CONFIG            
 
         ShowFPS()
         pge.draw_widgets(options_widgets)

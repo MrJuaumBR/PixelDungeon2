@@ -65,8 +65,7 @@ def game(save:Save):
         if menu_exitButton.value: run = False
         if menu_exitButton2.value: 
             db.update_value('saves', 'data', save.id, save.getData())
-            pge.exit()
-        
+            pge.exit()        
         
         pge.draw_rect((25*RATIO,25*RATIO), (250*RATIO,250*RATIO), P_DARKGRAY, 3, pge.Colors.LIGHTGRAY, alpha=180)
         pge.draw_text((55*RATIO,30*RATIO), f'PAUSED', GGF22,pge.Colors.DARKGRAY)
@@ -76,16 +75,15 @@ def game(save:Save):
         return menu_isOpen, run
 
     while run:
-        GAME_SCREEN = 4
-        GameObject.screen_id = GAME_SCREEN
-        if menu_isOpen: menu_isOpen, run = draw_menu(menu_isOpen, run)
         for ev in pge.events:
             if ev.type == pg.QUIT: pge.exit()
             elif ev.type == pg.KEYDOWN:
                 if ev.key == pg.K_ESCAPE:
                     menu_isOpen:bool = not menu_isOpen
-        
-        
+
+        GAME_SCREEN = 4
+        GameObject.screen_id = GAME_SCREEN
+        if menu_isOpen: menu_isOpen, run = draw_menu(menu_isOpen, run)                        
         ShowFPS()
         world.update()
         pge.update()
@@ -113,6 +111,13 @@ def create_save():
     
     create_save_widgets = [difficulties_select, elements_select,name_textbox,save_button, cancel_button]
     while run:
+        for ev in pge.events:
+            if ev.type == pg.QUIT: pge.exit()
+            elif ev.type == pg.KEYUP:
+                if ev.key == pg.K_ESCAPE: run = False
+            elif ev.type == pg.MOUSEBUTTONDOWN:
+                if pge.getMousePressed(5)[3]: run = False
+
         GAME_SCREEN = 6
         GameObject.screen_id = GAME_SCREEN
         # Game Title + Shadow
@@ -137,14 +142,7 @@ def create_save():
             if 'saves' in db.tables.keys():
                 db.add_value('saves', 'data',id=SS.id, value=SS.getData())
                 db.save()
-            run = False
-        
-        for ev in pge.events:
-            if ev.type == pg.QUIT: pge.exit()
-            elif ev.type == pg.KEYUP:
-                if ev.key == pg.K_ESCAPE: run = False
-            elif ev.type == pg.MOUSEBUTTONDOWN:
-                if pge.getMousePressed(5)[3]: run = False
+            run = False                
         
         ShowFPS()
         pge.draw_widgets(create_save_widgets)
@@ -185,6 +183,13 @@ def save_select():
     
     run = True
     while run:
+        for ev in pge.events:
+            if ev.type == pg.QUIT: pge.exit()
+            elif ev.type == pg.KEYUP:
+                if ev.key == pg.K_ESCAPE: run = False
+            elif ev.type == pg.MOUSEBUTTONDOWN:
+                if pge.getMousePressed(5)[3]: run = False
+
         GAME_SCREEN = 1
         GameObject.screen_id = GAME_SCREEN
         pge.draw_text((240*RATIO, 551*RATIO),f'Current: {current_save.Savename[:10] if current_save else "None"}', PPF18, pge.Colors.WHITE, bgColor=pge.Colors.DARKGRAY, border_width=3, border_color=pge.Colors.BLACK)
@@ -251,14 +256,7 @@ def save_select():
                     to_delete_id = buttons[2].id
             else:
                 current_save = buttons[2]
-                to_confirm_delete = False
-            
-        for ev in pge.events:
-            if ev.type == pg.QUIT: pge.exit()
-            elif ev.type == pg.KEYUP:
-                if ev.key == pg.K_ESCAPE: run = False
-            elif ev.type == pg.MOUSEBUTTONDOWN:
-                if pge.getMousePressed(5)[3]: run = False
+                to_confirm_delete = False                    
                 
         ShowFPS()
         pge.draw_widgets(save_select_widgets)
