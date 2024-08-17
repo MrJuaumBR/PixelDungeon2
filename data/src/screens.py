@@ -26,6 +26,8 @@ def modsscreen():
                     run = False
             elif ev.type == pg.MOUSEBUTTONDOWN:
                 if pge.getMousePressed(5)[3]: run = False
+
+        pge.fill(pge.Colors.BLACK)
                       
         GAME_SCREEN = constant.Menu.MODS_SCREEN
         GameObject.screen_id = GAME_SCREEN
@@ -90,14 +92,14 @@ def modsscreen():
         if Back_Button.value:
             run = False        
         
-        ShowFPS()
+        
         pge.draw_widgets(mods_widgets)
         mods.draw_mods(pge,GameObject)
         # Screen Title + Shadow
         pge.draw_text((13*RATIO,15*RATIO),'Mods', GGF32, pge.Colors.DARKGRAY)
         pge.draw_text((15*RATIO,15*RATIO), 'Mods', GGF34, pge.Colors.WHITE)
-        pge.update()
-        pge.fill(pge.Colors.BLACK)
+        ShowFPS()
+        pge.update()        
         pge.fpsw()
     db.update_value('cfg', 'data',0, CONFIG)
 
@@ -145,6 +147,8 @@ def options():
             elif ev.type == pg.MOUSEBUTTONDOWN:
                 if pge.getMousePressed(5)[3]: run = False
 
+        pge.fill(pge.Colors.BLACK)
+
         GAME_SCREEN = constant.Menu.OPTIONS
         GameObject.screen_id = GAME_SCREEN
         if Back_Button.value: run = False
@@ -167,12 +171,11 @@ def options():
         CONFIG['dynamic_fps'] = FPSDynamic_checkbox.value
         CONFIG['RenderDistance'] = RenderDistance_select.value
         GameObject.config = CONFIG            
-
-        ShowFPS()
+        
         pge.draw_widgets(options_widgets)
         mods.draw_mods(pge,GameObject)
-        pge.update()
-        pge.fill(pge.Colors.BLACK)
+        ShowFPS()
+        pge.update()        
         pge.fpsw()
         
     # Update Config

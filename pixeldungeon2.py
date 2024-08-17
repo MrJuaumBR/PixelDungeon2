@@ -31,6 +31,8 @@ def confirm_exit():
                         run = False
             elif ev.type == pg.MOUSEBUTTONDOWN:
                 if pge.getMousePressed(5)[3]: run = False
+
+        pge.fill(pge.Colors.BLACK)
                 
         GAME_SCREEN = 5
         if start_frame < pge.TimeSys.s2f(0.5):
@@ -53,7 +55,6 @@ def confirm_exit():
                 
         pge.draw_widgets(exit_widgets)
         pge.update()
-        pge.fill(pge.Colors.BLACK)
     
     if will_exit:
         pge.exit()
@@ -83,6 +84,8 @@ def main():
             elif ev.type == pg.KEYUP:
                 if ev.key == pg.K_ESCAPE:
                     confirm_exit()
+        
+        pge.fill(pge.Colors.BLACK)
 
         GAME_SCREEN = constant.Menu.MAIN
         GameObject.screen_id = GAME_SCREEN
@@ -105,11 +108,11 @@ def main():
         if Exit_Button.value:
             confirm_exit()                
         
-        ShowFPS()
+        
         pge.draw_widgets(main_widgets)        
         mods.draw_mods(pge,GameObject)
+        ShowFPS()
         pge.update()
-        pge.fill(pge.Colors.BLACK)
         pge.fpsw()
 
 def run():

@@ -82,16 +82,17 @@ def game(save:Save):
                 if ev.key == pg.K_ESCAPE:
                     menu_isOpen:bool = not menu_isOpen
 
+        pge.fill(pge.Colors.BLACK)
+
         GAME_SCREEN = constant.Menu.GAME
-        GameObject.screen_id = GAME_SCREEN
+        GameObject.screen_id = GAME_SCREEN        
+        world.update()                
+        world.draw()
+        mods.draw_mods(pge, GameObject, game_variables=dict(globals(), **locals()))                
         if menu_isOpen: menu_isOpen, run = draw_menu(menu_isOpen, run)                        
         ShowFPS()
-        world.update()
-        pge.update()
-        mods.draw_mods(pge, GameObject, game_variables=dict(globals(), **locals()))
+        pge.update()        
         pge.fpsw()
-        pge.fill(pge.Colors.BLACK)
-        world.draw()
     db.update_value('saves', 'data', save.id, save.getData())
 
 def create_save():
@@ -119,6 +120,8 @@ def create_save():
             elif ev.type == pg.MOUSEBUTTONDOWN:
                 if pge.getMousePressed(5)[3]: run = False
 
+        pge.fill(pge.Colors.BLACK)
+
         GAME_SCREEN = constant.Menu.CREATE_SAVE
         GameObject.screen_id = GAME_SCREEN
         # Game Title + Shadow
@@ -145,11 +148,11 @@ def create_save():
                 db.save()
             run = False                
         
-        ShowFPS()
+        
         pge.draw_widgets(create_save_widgets)
         mods.draw_mods(pge,GameObject)
-        pge.update()
-        pge.fill(pge.Colors.BLACK)
+        ShowFPS()
+        pge.update()        
         pge.fpsw()
 
 def save_select():
@@ -190,6 +193,8 @@ def save_select():
                 if ev.key == pg.K_ESCAPE: run = False
             elif ev.type == pg.MOUSEBUTTONDOWN:
                 if pge.getMousePressed(5)[3]: run = False
+
+        pge.fill(pge.Colors.BLACK)
 
         GAME_SCREEN = constant.Menu.SAVE_SELECT
         GameObject.screen_id = GAME_SCREEN
@@ -322,6 +327,5 @@ def save_select():
         pge.draw_text((13*RATIO,15*RATIO),'Save Select', GGF32, pge.Colors.DARKGRAY)
         pge.draw_text((15*RATIO,15*RATIO), 'Save Select', GGF34, pge.Colors.WHITE)
         
-        pge.update()
-        pge.fill(pge.Colors.BLACK)
+        pge.update()        
         pge.fpsw()
