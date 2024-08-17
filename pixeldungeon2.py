@@ -1,6 +1,6 @@
+from data.src.constant import constant
 from data.src.config import *
 from data.src.screens import options, save_select, modsscreen
-
 
 def confirm_exit():
     """
@@ -84,7 +84,7 @@ def main():
                 if ev.key == pg.K_ESCAPE:
                     confirm_exit()
 
-        GAME_SCREEN = 0
+        GAME_SCREEN = constant.Menu.MAIN
         GameObject.screen_id = GAME_SCREEN
         # Game Title + Shadow
         pge.draw_text((13*RATIO,15*RATIO), f'{GAME_TITLE}', GGF54,pge.Colors.DARKGRAY)
@@ -111,7 +111,6 @@ def main():
         pge.update()
         pge.fill(pge.Colors.BLACK)
         pge.fpsw()
-
 
 def run():
     if __name__ == '__main__':

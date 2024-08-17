@@ -1,3 +1,4 @@
+import constant
 from .config import *
 
 from .save import Save,Player, World
@@ -81,7 +82,7 @@ def game(save:Save):
                 if ev.key == pg.K_ESCAPE:
                     menu_isOpen:bool = not menu_isOpen
 
-        GAME_SCREEN = 4
+        GAME_SCREEN = constant.Menu.GAME
         GameObject.screen_id = GAME_SCREEN
         if menu_isOpen: menu_isOpen, run = draw_menu(menu_isOpen, run)                        
         ShowFPS()
@@ -118,7 +119,7 @@ def create_save():
             elif ev.type == pg.MOUSEBUTTONDOWN:
                 if pge.getMousePressed(5)[3]: run = False
 
-        GAME_SCREEN = 6
+        GAME_SCREEN = constant.Menu.CREATE_SAVE
         GameObject.screen_id = GAME_SCREEN
         # Game Title + Shadow
         pge.draw_text((13*RATIO,15*RATIO),'Create Save', GGF32, pge.Colors.DARKGRAY)
@@ -190,7 +191,7 @@ def save_select():
             elif ev.type == pg.MOUSEBUTTONDOWN:
                 if pge.getMousePressed(5)[3]: run = False
 
-        GAME_SCREEN = 1
+        GAME_SCREEN = constant.Menu.SAVE_SELECT
         GameObject.screen_id = GAME_SCREEN
         pge.draw_text((240*RATIO, 551*RATIO),f'Current: {current_save.Savename[:10] if current_save else "None"}', PPF18, pge.Colors.WHITE, bgColor=pge.Colors.DARKGRAY, border_width=3, border_color=pge.Colors.BLACK)
         pge.draw_text((10*RATIO, 575*RATIO), f'Used Save Slots: {len(db.get_all("saves"))}/9', PPF12, pge.Colors.WHITE if len(db.get_all("saves")) < 9 else pge.Colors.DARKGRAY)

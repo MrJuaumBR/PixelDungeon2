@@ -1,3 +1,4 @@
+import constant
 from .ingame import *
 from .config import *
 
@@ -26,7 +27,7 @@ def modsscreen():
             elif ev.type == pg.MOUSEBUTTONDOWN:
                 if pge.getMousePressed(5)[3]: run = False
                       
-        GAME_SCREEN = 3
+        GAME_SCREEN = constant.Menu.MODS_SCREEN
         GameObject.screen_id = GAME_SCREEN
         if Back_Button.value: run = False
         
@@ -144,7 +145,7 @@ def options():
             elif ev.type == pg.MOUSEBUTTONDOWN:
                 if pge.getMousePressed(5)[3]: run = False
 
-        GAME_SCREEN = 2
+        GAME_SCREEN = constant.Menu.OPTIONS
         GameObject.screen_id = GAME_SCREEN
         if Back_Button.value: run = False
         # Screen Title + Shadow
