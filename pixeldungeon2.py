@@ -69,47 +69,62 @@ def main():
     Options_Button = pyge.Button(pge, (25*RATIO, 138*RATIO), PPF26, 'OPTIONS', [P_LIGHTBLUE, P_DARKGRAY, pge.Colors.BLACK])
     Mods_Button = pyge.Button(pge, (25*RATIO, 176*RATIO), PPF26, 'MODS', [P_YELLOW, P_DARKGRAY, pge.Colors.BLACK])
     Exit_Button = pyge.Button(pge, (25*RATIO, 214*RATIO), PPF26, 'EXIT', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
+    
     main_widgets = [
         Play_Button,
         Options_Button,
         Mods_Button,
         Exit_Button
     ]
+    
     GameObject.pid = os.getpid()
     mods.import_mods(pge, GameObject)
+    game_mode = constant.Menu.MAIN
     while True:
         for ev in pge.events:
             if ev.type == pg.QUIT:
                 pge.exit()
             elif ev.type == pg.KEYUP:
                 if ev.key == pg.K_ESCAPE:
-                    confirm_exit()
-        
-        pge.fill(pge.Colors.BLACK)
+                    Exit_Button.value = True
 
-        GAME_SCREEN = constant.Menu.MAIN
-        GameObject.screen_id = GAME_SCREEN
-        # Game Title + Shadow
-        pge.draw_text((13*RATIO,15*RATIO), f'{GAME_TITLE}', GGF54,pge.Colors.DARKGRAY)
-        pge.draw_text((15*RATIO,15*RATIO), f'{GAME_TITLE}', GGF56,pge.Colors.WHITE)
-        
-        # Game version
-        pge.draw_text((20*RATIO,70*RATIO), f'Version {GAME_VERSION}', PPF16,pge.Colors.WHITE)
-        
-        # Buttons
         if Play_Button.value:
+            game_mode = constant.Menu.SAVE_SELECT
+        elif Options_Button.value:
+            game_mode = constant.Menu.OPTIONS
+        elif Mods_Button.value: 
+            game_mode = constant.Menu.MODS_SCREEN
+        elif Exit_Button.value:
+            game_mode = constant.Menu.CONFIRM_EXIT
+        else:
+            game_mode = constant.Menu.MAIN
+
+        Play_Button.value = Options_Button.value = Mods_Button.value = Exit_Button.value = False
+
+        pge.fill(pge.Colors.BLACK)
+        
+        if game_mode == constant.Menu.MAIN:
+            GameObject.screen_id = game_mode
+            # Game Title + Shadow
+            pge.draw_text((13*RATIO,15*RATIO), f'{GAME_TITLE}', GGF54,pge.Colors.DARKGRAY)
+            pge.draw_text((15*RATIO,15*RATIO), f'{GAME_TITLE}', GGF56,pge.Colors.WHITE)
+            
+            # Game version
+            pge.draw_text((20*RATIO,70*RATIO), f'Version {GAME_VERSION}', PPF16,pge.Colors.WHITE)                                       
+            
+            pge.draw_widgets(main_widgets)  
+        elif game_mode == constant.Menu.SAVE_SELECT:
             try:
                 save_select()
             except Exception as e:
                 raise e
-        elif Options_Button.value:
+        elif game_mode == constant.Menu.OPTIONS:
             options()
-        elif Mods_Button.value: 
+        elif game_mode == constant.Menu.MODS_SCREEN: 
             modsscreen()
-        elif Exit_Button.value:
-            confirm_exit()                        
-        
-        pge.draw_widgets(main_widgets)        
+        elif game_mode == constant.Menu.CONFIRM_EXIT:
+            confirm_exit()                                  
+
         mods.draw_mods(pge,GameObject)
         ShowFPS()
         pge.update()

@@ -207,7 +207,8 @@ def save_select():
         pge.draw_text((240*RATIO, 551*RATIO),f'Current: {current_save.Savename[:10] if current_save else "None"}', PPF18, pge.Colors.WHITE, bgColor=pge.Colors.DARKGRAY, border_width=3, border_color=pge.Colors.BLACK)
         pge.draw_text((10*RATIO, 575*RATIO), f'Used Save Slots: {len(db.get_all("saves"))}/9', PPF12, pge.Colors.WHITE if len(db.get_all("saves")) < 9 else pge.Colors.DARKGRAY)
         if len(saves) <= 0: pge.draw_text((60*RATIO, 240*RATIO),'A little bit empty here...', PPF18, pge.Colors.DARKGRAY, alpha=200)
-        if Back_Button.value: run = False
+        if Back_Button.value: 
+            run = False
         if Load_Save_Button.value and current_save is not None:
             game(current_save)
         if Create_Save_Button.value and len(db.get_all('saves')) < 9:

@@ -139,19 +139,24 @@ def options():
     ]
     while run:
         for ev in pge.events:
-            if ev.type == pg.QUIT: pge.exit()
+            if ev.type == pg.QUIT: 
+                pge.exit()
             elif ev.type == pg.KEYUP:
-                if ev.key == pg.K_ESCAPE: run = False
+                if ev.key == pg.K_ESCAPE:
+                    run = False
                 elif ev.key == pg.K_F1:
                     pdb.get_content()
             elif ev.type == pg.MOUSEBUTTONDOWN:
-                if pge.getMousePressed(5)[3]: run = False
+                if pge.getMousePressed(5)[3]: 
+                    run = False
 
         pge.fill(pge.Colors.BLACK)
 
         GAME_SCREEN = constant.Menu.OPTIONS
         GameObject.screen_id = GAME_SCREEN
-        if Back_Button.value: run = False
+        if Back_Button.value: 
+            run = False
+            
         # Screen Title + Shadow
         pge.draw_text((13*RATIO,15*RATIO),'Options', GGF32, pge.Colors.DARKGRAY)
         pge.draw_text((15*RATIO,15*RATIO), 'Options', GGF34, pge.Colors.WHITE)
