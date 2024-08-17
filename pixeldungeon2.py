@@ -1,4 +1,4 @@
-from data.src.constant import constant
+from data.src import constant
 from data.src.config import *
 from data.src.screens import options, save_select, modsscreen
 
@@ -94,14 +94,14 @@ def main():
         pge.draw_text((20*RATIO,70*RATIO), f'Version {GAME_VERSION}', PPF16,pge.Colors.WHITE)
         
         # Buttons
-        if Play_Button.value and GAME_SCREEN != 5:
+        if Play_Button.value and GAME_SCREEN != constant.Menu.CONFIRM_EXIT:
             try:
                 save_select()
             except Exception as e:
                 raise e
-        if Options_Button.value and GAME_SCREEN != 5:
+        if Options_Button.value and GAME_SCREEN != constant.Menu.CONFIRM_EXIT:
             options()
-        if Mods_Button.value and GAME_SCREEN != 5: modsscreen()
+        if Mods_Button.value and GAME_SCREEN != constant.Menu.CONFIRM_EXIT: modsscreen()
         if Exit_Button.value:
             confirm_exit()                
         

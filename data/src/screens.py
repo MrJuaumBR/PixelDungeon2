@@ -1,4 +1,4 @@
-import constant
+from data.src import constant
 from .ingame import *
 from .config import *
 

@@ -1,4 +1,4 @@
-import constant
+from data.src import constant
 from .config import *
 
 from .save import Save,Player, World
