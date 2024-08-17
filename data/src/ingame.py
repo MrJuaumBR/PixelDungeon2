@@ -93,6 +93,7 @@ def game(save:Save):
         ShowFPS()
         pge.update()        
         pge.fpsw()
+
     db.update_value('saves', 'data', save.id, save.getData())
 
 def create_save():
@@ -114,11 +115,14 @@ def create_save():
     create_save_widgets = [difficulties_select, elements_select,name_textbox,save_button, cancel_button]
     while run:
         for ev in pge.events:
-            if ev.type == pg.QUIT: pge.exit()
+            if ev.type == pg.QUIT: 
+                pge.exit()
             elif ev.type == pg.KEYUP:
-                if ev.key == pg.K_ESCAPE: run = False
+                if ev.key == pg.K_ESCAPE: 
+                    run = False
             elif ev.type == pg.MOUSEBUTTONDOWN:
-                if pge.getMousePressed(5)[3]: run = False
+                if pge.getMousePressed(5)[3]: 
+                    run = False
 
         pge.fill(pge.Colors.BLACK)
 
@@ -147,8 +151,7 @@ def create_save():
                 db.add_value('saves', 'data',id=SS.id, value=SS.getData())
                 db.save()
             run = False                
-        
-        
+                
         pge.draw_widgets(create_save_widgets)
         mods.draw_mods(pge,GameObject)
         ShowFPS()
@@ -188,11 +191,14 @@ def save_select():
     run = True
     while run:
         for ev in pge.events:
-            if ev.type == pg.QUIT: pge.exit()
+            if ev.type == pg.QUIT: 
+                pge.exit()
             elif ev.type == pg.KEYUP:
-                if ev.key == pg.K_ESCAPE: run = False
+                if ev.key == pg.K_ESCAPE: 
+                    run = False
             elif ev.type == pg.MOUSEBUTTONDOWN:
-                if pge.getMousePressed(5)[3]: run = False
+                if pge.getMousePressed(5)[3]: 
+                    run = False
 
         pge.fill(pge.Colors.BLACK)
 

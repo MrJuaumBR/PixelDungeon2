@@ -91,8 +91,7 @@ def modsscreen():
                 ny += r.height
         if Back_Button.value:
             run = False        
-        
-        
+                
         pge.draw_widgets(mods_widgets)
         mods.draw_mods(pge,GameObject)
         # Screen Title + Shadow
@@ -101,6 +100,7 @@ def modsscreen():
         ShowFPS()
         pge.update()        
         pge.fpsw()
+        
     db.update_value('cfg', 'data',0, CONFIG)
 
 def options():

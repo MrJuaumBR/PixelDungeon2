@@ -1,9 +1,6 @@
-
-
 """
 Config File
 """
-
 
 # MetaData
 GAME_TITLE = 'Pixel Dungeon 2'

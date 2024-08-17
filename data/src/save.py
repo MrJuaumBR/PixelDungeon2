@@ -8,6 +8,7 @@ class Save:
     Saveworld:World
     Saveplayer:Player
     opened_times:int = 0
+    
     def __init__(self, Savename, Savedifficulty, Saveelement) -> None:
         self.Savename = Savename
         self.Saveplayer = Player(self,Savename, Saveelement)

@@ -13,7 +13,6 @@ tiles_ids = {
     -2: 'barrier'
 }
  
-
 class MapGenerator:
     width:int = 256
     height:int = 192
@@ -67,8 +66,7 @@ class MapGenerator:
             self.generate_map()
             self.last_modification = os.path.getmtime('data/maps.json')
             return True
-        return False
-        
+        return False        
 
     def simplified_version(self) -> list:
         for line in self.terrain:

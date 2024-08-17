@@ -97,17 +97,17 @@ def main():
         pge.draw_text((20*RATIO,70*RATIO), f'Version {GAME_VERSION}', PPF16,pge.Colors.WHITE)
         
         # Buttons
-        if Play_Button.value and GAME_SCREEN != constant.Menu.CONFIRM_EXIT:
+        if Play_Button.value:
             try:
                 save_select()
             except Exception as e:
                 raise e
-        if Options_Button.value and GAME_SCREEN != constant.Menu.CONFIRM_EXIT:
+        elif Options_Button.value:
             options()
-        if Mods_Button.value and GAME_SCREEN != constant.Menu.CONFIRM_EXIT: modsscreen()
-        if Exit_Button.value:
-            confirm_exit()                
-        
+        elif Mods_Button.value: 
+            modsscreen()
+        elif Exit_Button.value:
+            confirm_exit()                        
         
         pge.draw_widgets(main_widgets)        
         mods.draw_mods(pge,GameObject)
