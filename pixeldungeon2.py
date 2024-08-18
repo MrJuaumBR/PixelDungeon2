@@ -49,7 +49,7 @@ def confirm_exit(game_state):
         will_exit = True
         result = True    
     elif key[constant.Key.N].is_down or Cancel_Button.value:
-        game_state.Exit_Button.value = False #@NOTE: Turn this flag off after closing it.
+        game_state.Exit_Button.value = False
         game_state.mode = constant.Menu.MAIN
 
     # Draw
@@ -126,10 +126,12 @@ def main():
         game_state.Play_Button.value = game_state.Options_Button.value = game_state.Mods_Button.value = game_state.Exit_Button.value = False
 
         # Draw
-        pge.fill(pge.Colors.BLACK)
+        #
         
         if game_state.mode == constant.Menu.MAIN:
             GameObject.screen_id = game_state.mode
+
+            pge.fill(pge.Colors.BLACK)
             # Game Title + Shadow
             pge.draw_text((13*RATIO,15*RATIO), f'{GAME_TITLE}', GGF54,pge.Colors.DARKGRAY)
             pge.draw_text((15*RATIO,15*RATIO), f'{GAME_TITLE}', GGF56,pge.Colors.WHITE)
@@ -138,6 +140,8 @@ def main():
             pge.draw_text((20*RATIO,70*RATIO), f'Version {GAME_VERSION}', PPF16,pge.Colors.WHITE)                                       
             
             pge.draw_widgets(main_widgets)  
+            mods.draw_mods(pge,GameObject)
+            ShowFPS()
         elif game_state.mode == constant.Menu.SAVE_SELECT:
             try:
                 save_select()
@@ -146,7 +150,7 @@ def main():
         elif game_state.mode == constant.Menu.OPTIONS:
             options()
         elif game_state.mode == constant.Menu.MODS_SCREEN: 
-            modsscreen()
+            modsscreen(game_state)
         elif game_state.mode == constant.Menu.CONFIRM_EXIT:
             confirm_exit_result = confirm_exit(game_state)
             is_running = not confirm_exit_result
@@ -157,9 +161,7 @@ def main():
                 game_state.input_state.key[value].was_down = game_state.input_state.key[value].is_down                
         for index in range(0, len(game_state.input_state.mouse.button)):
             game_state.input_state.mouse.button[index].was_down = game_state.input_state.mouse.button[index].is_down
-
-        mods.draw_mods(pge,GameObject)
-        ShowFPS()
+        
         pg.display.update()
         pge.fpsw()        
 
