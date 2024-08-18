@@ -164,7 +164,6 @@ def save_select(game_state):
     """
     Save Select Screen
     """
-    saves = game_state.saves
 
     if not game_state.saves:
         s = time.perf_counter()                           
@@ -189,15 +188,15 @@ def save_select(game_state):
 
     GAME_SCREEN = constant.Menu.SAVE_SELECT
     GameObject.screen_id = GAME_SCREEN    
-    if len(saves) <= 0: pge.draw_text((60*RATIO, 240*RATIO),'A little bit empty here...', PPF18, pge.Colors.DARKGRAY, alpha=200)
+    if len(game_state.saves) <= 0: pge.draw_text((60*RATIO, 240*RATIO),'A little bit empty here...', PPF18, pge.Colors.DARKGRAY, alpha=200)
     
     if game_state.Create_Save_Button.value and len(db.get_all('saves')) < 9:        
         create_save(game_state)
-        saves:dict[Save,] = {}
+        game_state.saves = {}
         for save in db.get_all('saves'):
             x = Save('',0,0)
             x.loadData(save['data'])
-            saves[str(save['id'])] = x
+            game_state.saves[str(save['id'])] = x
 
     if game_state.Create_Save_Button.value:
         return
@@ -209,11 +208,11 @@ def save_select(game_state):
     pge.draw_text((15*RATIO,15*RATIO), 'Save Select', GGF34, pge.Colors.WHITE)
 
     pos = [50,65]
-    for save_id in saves.keys():
+    for save_id in game_state.saves.keys():
         if pos[0] >= 800-230:
             pos[0] = 50
             pos[1] += 125
-        save:Save = saves[save_id]
+        save:Save = game_state.saves[save_id]
         pge.draw_rect((pos[0]*RATIO, pos[1]*RATIO),(230*RATIO, 120*RATIO), pge.Colors.DARKGRAY,alpha=120)
         pge.draw_text(((pos[0]+5)*RATIO,(pos[1]+10)*RATIO), str(save.Savename)[:12], PPF18, pge.Colors.WHITE)
         pge.draw_text(((pos[0]+5)*RATIO,(pos[1]+30)*RATIO), f'Difficulty: {difficulties[save.Saveworld.difficulty]}', PPF8, colors['difficulty'][str(save.Saveworld.difficulty)])
@@ -250,8 +249,8 @@ def save_select(game_state):
         pos[0] += 235
     
     for buttons in buttons_save:
-        if game_state.current_save == None:
-            game_state.current_save = buttons[2]
+        if (game_state.current_save == None) and not game_state.to_confirm_delete:
+            game_state.current_save = buttons_save[0][2]
 
         if buttons[0].value:
             game_state.current_save = buttons[2]
@@ -262,7 +261,7 @@ def save_select(game_state):
     pge.draw_text((240*RATIO, 551*RATIO),f'Current: {game_state.current_save.Savename[:10] if game_state.current_save else "None"}', PPF18, pge.Colors.WHITE, bgColor=pge.Colors.DARKGRAY, border_width=3, border_color=pge.Colors.BLACK)
     pge.draw_text((10*RATIO, 575*RATIO), f'Used Save Slots: {len(db.get_all("saves"))}/9', PPF12, pge.Colors.WHITE if len(db.get_all("saves")) < 9 else pge.Colors.DARKGRAY)                
                     
-    if game_state.to_confirm_delete and not (game_state.to_delete_id in ['',' ',None,'None']):
+    if game_state.to_confirm_delete and not (game_state.to_delete_id in ['',' ',None,'None']):        
         pge.draw_rect((30*RATIO, 290*RATIO), (740*RATIO, 150*RATIO), pge.Colors.DARKGRAY, alpha=190, border_color=pge.Colors.LIGHTGRAY, border_width=3)
         pge.draw_text((40*RATIO, 300*RATIO), 'Are you sure you want to delete this save?', PPF16, pge.Colors.WHITE)
         pge.draw_text((40*RATIO, 330*RATIO), f'Savename: {game_state.to_delete_id}', PPF12, pge.Colors.WHITE)
@@ -272,6 +271,8 @@ def save_select(game_state):
         id1 = f'{game_state.to_delete_id}button_select'
         id2 = f'{game_state.to_delete_id}button_delete'
         if keys[constant.Key.Y].is_down: # Delete
+            #buttons_save.remove(game_state.current_save)
+            game_state.current_save = None
             db.delete_values('saves',game_state.to_delete_id)
             db.save()
             # Remove all wdigets for this from engine
@@ -283,19 +284,21 @@ def save_select(game_state):
             buttons_save_ids = []
             
             # Reload Saves
-            saves:dict[Save,] = {}
+            game_state.saves = {}
             for save in db.get_all('saves'):
                 x = Save('',0,0)
                 x.loadData(save['data'])
-                saves[str(save['id'])] = x
+                game_state.saves[str(save['id'])] = x
             
-            to_confirm_delete = False
+            game_state.to_confirm_delete = False
             game_state.to_delete_id = ''
         elif keys[constant.Key.N].is_down: # Cancel
-            to_confirm_delete = False
+            game_state.to_confirm_delete = False
             game_state.to_delete_id = ''
         else:
             if game_state.confirm_delete_button.value: # Delete
+                #buttons_save.remove(game_state.current_save)
+                game_state.current_save = None
                 db.delete_values('saves',game_state.to_delete_id)
                 db.save()
                 # Remove all wdigets for this from engine
@@ -307,16 +310,16 @@ def save_select(game_state):
                 buttons_save_ids = []
                 
                 # Reload Saves
-                saves:dict[Save,] = {}
+                game_state.saves = {}
                 for save in db.get_all('saves'):
                     x = Save('',0,0)
                     x.loadData(save['data'])
-                    saves[str(save['id'])] = x
+                    game_state.saves[str(save['id'])] = x
                 
-                to_confirm_delete = False
+                game_state.to_confirm_delete = False
                 game_state.to_delete_id = ''
             elif game_state.cancel_delete_button.value: # Cancel
-                to_confirm_delete = False
+                game_state.to_confirm_delete = False
                 game_state.to_delete_id = ''    
 
     if game_state.Load_Save_Button.value and game_state.current_save is not None:

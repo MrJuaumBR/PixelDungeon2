@@ -1,6 +1,6 @@
 #@TODO: Fix not saving the state when you leave the world or not loading it
 #@TODO: Fix remember the last save name that was deleted
-#@TODO: Fix in game lag
+
 from data.src import constant
 from data.src.config import *
 from data.src import screens #screens import options, save_select, modsscreen
