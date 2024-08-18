@@ -9,6 +9,12 @@ class Menu:
     CONFIRM_EXIT = 5
     CREATE_SAVE = 6
 
+class Mouse:
+    RESERVED = 0
+    LEFT_BUTTON = 1
+    MIDDLE_BUTTON = 2
+    RIGHT_BUTTON = 3
+
 class Key:
     BACKSPACE = pygame.K_BACKSPACE   
     TAB = pygame.K_TAB         

@@ -9,9 +9,7 @@ class ButtonState:
 class MouseState:
     x = 0
     y = 0
-    left_button = ButtonState()
-    middle_button = ButtonState()
-    right_button = ButtonState()
+    button = [ButtonState()] * 4
 
 class InputState:
     key = {}
@@ -21,9 +19,12 @@ class GameState:
     mode = constant.Menu.MAIN
     old_input_state = InputState()
     input_state = InputState()
-    #@TODO: Clean up
     Confirm_Button = pyge.Button(pge, (50*RATIO, 130*RATIO), PPF16, 'Confirm (Y)', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
     Cancel_Button = pyge.Button(pge, (400*RATIO, 130*RATIO), PPF16, 'Cancel (N)', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+    Play_Button = pyge.Button(pge, (25*RATIO, 100*RATIO), PPF26, 'PLAY', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+    Options_Button = pyge.Button(pge, (25*RATIO, 138*RATIO), PPF26, 'OPTIONS', [P_LIGHTBLUE, P_DARKGRAY, pge.Colors.BLACK])
+    Mods_Button = pyge.Button(pge, (25*RATIO, 176*RATIO), PPF26, 'MODS', [P_YELLOW, P_DARKGRAY, pge.Colors.BLACK])
+    Exit_Button = pyge.Button(pge, (25*RATIO, 214*RATIO), PPF26, 'EXIT', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
 
 def confirm_exit(game_state):
     """
@@ -31,6 +32,7 @@ def confirm_exit(game_state):
     """
     result = False
     
+    # Logic
     will_exit = False
     
     Confirm_Button = game_state.Confirm_Button
@@ -41,14 +43,16 @@ def confirm_exit(game_state):
         game_state.Cancel_Button
     ]
     
-    key = game_state.input_state.key        
+    key = game_state.input_state.key
 
-    if key[constant.Key.Y].is_down:
+    if key[constant.Key.Y].is_down or Confirm_Button.value:
         will_exit = True
         result = True    
-    elif key[constant.Key.N].is_down:
+    elif key[constant.Key.N].is_down or Cancel_Button.value:
+        game_state.Exit_Button.value = False #@NOTE: Turn this flag off after closing it.
         game_state.mode = constant.Menu.MAIN
 
+    # Draw
     pge.fill(pge.Colors.BLACK)
 
     # Title Screen  + Shadow
@@ -57,13 +61,6 @@ def confirm_exit(game_state):
     
     # Texts
     pge.draw_text((50*RATIO,100*RATIO), 'Are you sure you want to exit?', PPF24, pge.Colors.WHITE)          
-
-    if Confirm_Button.value:
-        will_exit = True
-        result = True
-    elif Cancel_Button.value:
-        will_exit = False
-        game_state.mode = constant.Menu.MAIN
     
     pge.draw_widgets(exit_widgets)
 
@@ -76,56 +73,59 @@ def main():
     """
     Main Loop + Main Menu
     """
-    # setup our input_state, I forgot the mouse btw...
+    # Setup our input_state
     game_state = GameState() 
     for key, value in vars(constant.Key).items():
         if (not callable(value)) and (not key.startswith("__")):
             game_state.input_state.key[value] = ButtonState()
 
-    pge.enableFPS_unstable(CONFIG['dynamic_fps'])
-    Play_Button = pyge.Button(pge, (25*RATIO, 100*RATIO), PPF26, 'PLAY', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
-    Options_Button = pyge.Button(pge, (25*RATIO, 138*RATIO), PPF26, 'OPTIONS', [P_LIGHTBLUE, P_DARKGRAY, pge.Colors.BLACK])
-    Mods_Button = pyge.Button(pge, (25*RATIO, 176*RATIO), PPF26, 'MODS', [P_YELLOW, P_DARKGRAY, pge.Colors.BLACK])
-    Exit_Button = pyge.Button(pge, (25*RATIO, 214*RATIO), PPF26, 'EXIT', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
+    pge.enableFPS_unstable(CONFIG['dynamic_fps'])    
     
     main_widgets = [
-        Play_Button,
-        Options_Button,
-        Mods_Button,
-        Exit_Button
+        game_state.Play_Button,
+        game_state.Options_Button,
+        game_state.Mods_Button,
+        game_state.Exit_Button
     ]    
     
     GameObject.pid = os.getpid()
     mods.import_mods(pge, GameObject)    
     is_running = True
     while is_running:
-        # events
+        # Events
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pge.exit()
             elif (event.type == pg.KEYDOWN) or (event.type == pg.KEYUP):
                 key = event.key
-                is_down = event.type == pg.KEYDOWN           
+                is_down = event.type == pg.KEYDOWN         
+
                 game_state.input_state.key[key].is_down = is_down 
-        
-        # logic
+            elif (event.type == pg.MOUSEBUTTONDOWN) or (event.type == pg.MOUSEBUTTONUP):
+                is_down = event.type == pg.MOUSEBUTTONDOWN
+
+                for index in range(0, len(game_state.input_state.mouse.button)):
+                    if event.button == index:
+                        game_state.input_state.mouse.button[index].is_down = is_down
+                        break
+            
+        # Logic
         key = game_state.input_state.key        
-
         if key[constant.Key.ESCAPE].is_down:
-            Exit_Button.value = True
-
-        if Play_Button.value:
+            game_state.Exit_Button.value = True            
+        
+        if game_state.Play_Button.value:
             game_state.mode = constant.Menu.SAVE_SELECT
-        elif Options_Button.value:
+        elif game_state.Options_Button.value:
             game_state.mode = constant.Menu.OPTIONS
-        elif Mods_Button.value: 
+        elif game_state.Mods_Button.value: 
             game_state.mode = constant.Menu.MODS_SCREEN
-        elif Exit_Button.value:
+        elif game_state.Exit_Button.value:
             game_state.mode = constant.Menu.CONFIRM_EXIT
         
-        Play_Button.value = Options_Button.value = Mods_Button.value = Exit_Button.value = False
+        game_state.Play_Button.value = game_state.Options_Button.value = game_state.Mods_Button.value = game_state.Exit_Button.value = False
 
-        # draw
+        # Draw
         pge.fill(pge.Colors.BLACK)
         
         if game_state.mode == constant.Menu.MAIN:
@@ -154,7 +154,9 @@ def main():
         #@TODO: Should probably be the last thing we do but i need to fix the timer first. Also its not my fault to be messy.
         for key, value in vars(constant.Key).items():
             if (not callable(value)) and (not key.startswith("__")):
-                game_state.input_state.key[value].was_down = game_state.input_state.key[value].is_down
+                game_state.input_state.key[value].was_down = game_state.input_state.key[value].is_down                
+        for index in range(0, len(game_state.input_state.mouse.button)):
+            game_state.input_state.mouse.button[index].was_down = game_state.input_state.mouse.button[index].is_down
 
         mods.draw_mods(pge,GameObject)
         ShowFPS()
