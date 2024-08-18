@@ -1,6 +1,7 @@
 from data.src import constant
 from .config import *
 from data.src import functions
+import time
 
 from .save import Save,Player, World
 elements = [
@@ -38,6 +39,24 @@ colors = {
     }
 }
 
+def draw_menu(game_state, menu_widgets, save, menu_isOpen:bool):
+    run = True
+    if game_state.menu_resumeButton.value: 
+        menu_isOpen = False
+    if game_state.menu_exitButton.value: 
+        run = False
+    if game_state.menu_exitButton2.value: 
+        save.opened_times = 0
+        db.update_value('saves', 'data', save.id, save.getData())
+        pge.exit()        
+    
+    pge.draw_rect((25*RATIO,25*RATIO), (250*RATIO,250*RATIO), P_DARKGRAY, 3, pge.Colors.LIGHTGRAY, alpha=180)
+    pge.draw_text((55*RATIO,30*RATIO), f'PAUSED', GGF22,pge.Colors.DARKGRAY)
+    pge.draw_text((57*RATIO,30*RATIO), f'PAUSED', GGF22,pge.Colors.WHITE)
+    pge.draw_widgets(menu_widgets)
+    
+    return menu_isOpen, run
+
 def game(game_state, save:Save):
     """
     Game Loop
@@ -46,7 +65,7 @@ def game(game_state, save:Save):
     world:World = save.Saveworld
     if save.opened_times == 0:
         world.gen_world()
-    save.opened_times += 1
+        save.opened_times += 1
 
     game_state.menu_exitButton.value = False    
 
@@ -63,40 +82,26 @@ def game(game_state, save:Save):
         if x:
             pge.widgets.remove(x)
 
+    s = time.perf_counter()
     world.update()
+    e = time.perf_counter()
+    #print((e - s) * 1000.0)
 
-    pge.fill(pge.Colors.BLACK)
-
-    def draw_menu(menu_isOpen:bool):
-        run = True
-        if game_state.menu_resumeButton.value: 
-            menu_isOpen = False
-        if game_state.menu_saveButton.value:
-            db.update_value('saves', 'data', save.id, save.getData())
-        if game_state.menu_exitButton.value: 
-            run = False
-        if game_state.menu_exitButton2.value: 
-            db.update_value('saves', 'data', save.id, save.getData())
-            pge.exit()        
-        
-        pge.draw_rect((25*RATIO,25*RATIO), (250*RATIO,250*RATIO), P_DARKGRAY, 3, pge.Colors.LIGHTGRAY, alpha=180)
-        pge.draw_text((55*RATIO,30*RATIO), f'PAUSED', GGF22,pge.Colors.DARKGRAY)
-        pge.draw_text((57*RATIO,30*RATIO), f'PAUSED', GGF22,pge.Colors.WHITE)
-        pge.draw_widgets(menu_widgets)
-        
-        return menu_isOpen, run
+    pge.fill(pge.Colors.BLACK)    
                
     world.draw()
     mods.draw_mods(pge, GameObject, game_variables=dict(globals(), **locals())) 
 
     if game_state.menu_isOpen: 
-        game_state.menu_isOpen, run = draw_menu(game_state.menu_isOpen)  
+        game_state.menu_isOpen, run = draw_menu(game_state, menu_widgets, save, game_state.menu_isOpen)  
 
     ShowFPS()
     
     if game_state.menu_exitButton.value:
         game_state.menu_isOpen = False
+        save.opened_times = 0
         db.update_value('saves', 'data', save.id, save.getData())
+        db.save()
 
 def create_save(game_state):
     name_list1 = ['Robert','Carl','Michael','Stew','John','David','Sonic','Shapened','Robloxian','Ex','Neymar','Usually','Mr']
@@ -159,13 +164,17 @@ def save_select(game_state):
     """
     Save Select Screen
     """
-    
-    saves:dict[Save,] = {}
-    for save in db.get_all('saves'):
-        x = Save('',0,0)
-        x.loadData(save['data'])
-        saves[str(save['id'])] = x
-    
+    saves = game_state.saves
+
+    if not game_state.saves:
+        s = time.perf_counter()                           
+        for save in db.get_all('saves'):
+            x = Save('',0,0)
+            x.loadData(save['data'])
+            game_state.saves[str(save['id'])] = x
+        e = time.perf_counter()
+        #print((e - s) * 1000.0)
+
     # for id in saves.keys():
     #     save:Save = saves[id]
     #     print(id,save.Savename)
@@ -311,7 +320,11 @@ def save_select(game_state):
                 game_state.to_delete_id = ''    
 
     if game_state.Load_Save_Button.value and game_state.current_save is not None:
+        s = time.perf_counter()
         game(game_state, game_state.current_save)
+        e = time.perf_counter()
+        #print((e - s) * 1000.0)
+
         if not game_state.menu_exitButton.value:
             return
 

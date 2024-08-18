@@ -1,9 +1,12 @@
 #@TODO: Fix not saving the state when you leave the world or not loading it
-
+#@TODO: Fix remember the last save name that was deleted
+#@TODO: Fix in game lag
 from data.src import constant
 from data.src.config import *
 from data.src import screens #screens import options, save_select, modsscreen
 from data.src import functions
+import time
+from data.src import save
 
 class ButtonState:
     is_down = False
@@ -64,6 +67,8 @@ class GameState:
     menu_exitButton2 = pyge.Button(pge, (50*RATIO, 130*RATIO), PPF14, 'EXIT TO DESKTOP', [pge.Colors.LIGHTRED, pge.Colors.DARKRED])
     #
     menu_isOpen = False
+    #
+    saves:dict[save.Save,] = {}
 
 def confirm_exit(game_state):
     """
@@ -187,7 +192,10 @@ def main():
             ShowFPS()
         elif functions.peek_game_mode(game_state) == constant.Menu.SAVE_SELECT:
             try:
+                s = time.perf_counter()        
                 screens.save_select(game_state)
+                e = time.perf_counter()
+                #print((e - s) * 1000.0)
             except Exception as e:
                 raise e
         elif functions.peek_game_mode(game_state) == constant.Menu.OPTIONS:

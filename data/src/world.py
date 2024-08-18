@@ -131,8 +131,7 @@ class World(pyge.pg.sprite.Group):
         self.x_shift = 0
         self.y_shift = 0
     
-    def ScrollHandler(self):
-        
+    def ScrollHandler(self):        
         # Make Scrolls
         plr_rect = pyge.pg.Rect(0,0,32,32)
         plr_rect.center = (CURRENT_SCREEN_SIZE[0]/2, CURRENT_SCREEN_SIZE[1]/2)
@@ -143,10 +142,10 @@ class World(pyge.pg.sprite.Group):
         self.ScrollUpdate()
         
         # Collisions Detector
-        Thread(target=self.x_collision, args=(plr_rect,)).start() # Using Thread for Performance
+        #Thread(target=self.x_collision, args=(plr_rect,)).start() # Using Thread for Performance
+        self.x_collision(plr_rect)
         self.y_collision(plr_rect)
-            
-    
+                
     def draw(self):
         changed:bool = self.mapgen.hotreload_map()
         self.surface.fill(self.bg_color)
