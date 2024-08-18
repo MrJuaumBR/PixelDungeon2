@@ -103,14 +103,15 @@ def create_save(game_state):
 
     create_save_widgets = [game_state.difficulties_select, game_state.elements_select, game_state.name_textbox, game_state.save_button, game_state.cancel_button]       
 
-    pge.fill(pge.Colors.BLACK)
-
     GAME_SCREEN = constant.Menu.CREATE_SAVE
     GameObject.screen_id = GAME_SCREEN
+    
+    pge.fill(pge.Colors.BLACK)
+    
     # Game Title + Shadow
     pge.draw_text((13*RATIO,15*RATIO),'Create Save', GGF32, pge.Colors.DARKGRAY)
     pge.draw_text((15*RATIO,15*RATIO), 'Create Save', GGF34, pge.Colors.WHITE)
-    #@TODO: Cant enter a name
+
     # Form
     pge.draw_text((10*RATIO, 100*RATIO), 'Name: ', PPF20, pge.Colors.WHITE)
     pge.draw_text((10*RATIO, 180*RATIO), 'Difficulty: ', PPF20, pge.Colors.WHITE)
@@ -135,8 +136,18 @@ def create_save(game_state):
             
     #@TODO: HACK
     for widget in create_save_widgets:
-        if widget == None:
+        if widget == None:            
             widget.build_widget_display() 
+        elif widget == game_state.name_textbox:
+            if game_state.name_textbox.active:
+                for key in game_state.key_pressed:
+                    if (key >= constant.Key.SPACE) and (key <= constant.Key.Z):
+                        game_state.name_textbox.text += chr(key)
+                    
+                    game_state.key_pressed.pop(0)
+            else:
+                game_state.key_pressed.clear()
+
     pge.draw_widgets(create_save_widgets)
     mods.draw_mods(pge,GameObject)
 

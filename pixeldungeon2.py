@@ -1,3 +1,4 @@
+#@TODO:  Fix ESCAPE that teleport you to the MAIN MENU
 from data.src import constant
 from data.src.config import *
 from data.src.screens import options, save_select, modsscreen
@@ -19,7 +20,8 @@ class GameState:
     mode = constant.Menu.MAIN
     old_input_state = InputState()
     input_state = InputState()
-    
+    key_pressed = []
+
     Confirm_Button = pyge.Button(pge, (50*RATIO, 130*RATIO), PPF16, 'Confirm (Y)', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
     Cancel_Button = pyge.Button(pge, (400*RATIO, 130*RATIO), PPF16, 'Cancel (N)', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
     
@@ -130,7 +132,9 @@ def main():
                 key = event.key
                 is_down = event.type == pg.KEYDOWN         
 
-                game_state.input_state.key[key].is_down = is_down 
+                game_state.input_state.key[key].is_down = is_down
+                if is_down and not game_state.input_state.key[key].was_down:
+                    game_state.key_pressed.append(key)
             elif (event.type == pg.MOUSEBUTTONDOWN) or (event.type == pg.MOUSEBUTTONUP):
                 is_down = event.type == pg.MOUSEBUTTONDOWN
 
