@@ -37,34 +37,44 @@ colors = {
     }
 }
 
-def game(save:Save):
+def game(game_state, save:Save):
     """
     Game Loop
     """
     player:Player = save.Saveplayer
     world:World = save.Saveworld
-    world.gen_world()
+    if save.opened_times == 0:
+        world.gen_world()
     save.opened_times += 1
+
+    game_state.menu_exitButton.value = False    
+
+    menu_widgets = [game_state.menu_resumeButton, game_state.menu_saveButton, game_state.menu_exitButton, game_state.menu_exitButton2]
+    GAME_SCREEN = constant.Menu.GAME
+    GameObject.screen_id = GAME_SCREEN 
     
-    menu_resumeButton = pyge.Button(pge, (50*RATIO, 70*RATIO), PPF16, 'RESUME', [pge.Colors.LIGHTGREEN, pge.Colors.DARKGREEN])
-    menu_saveButton = pyge.Button(pge, (50*RATIO, 90*RATIO), PPF16, 'SAVE', [pge.Colors.LIGHTBLUE, pge.Colors.DARKBLUE])
-    menu_exitButton = pyge.Button(pge, (50*RATIO, 110*RATIO), PPF16, 'EXIT', [pge.Colors.LIGHTRED, pge.Colors.DARKRED])
-    menu_exitButton2 = pyge.Button(pge, (50*RATIO, 130*RATIO), PPF14, 'EXIT TO DESKTOP', [pge.Colors.LIGHTRED, pge.Colors.DARKRED])
-    
-    menu_isOpen:bool = False
-    
-    menu_widgets = [menu_resumeButton, menu_saveButton, menu_exitButton, menu_exitButton2]
+    key = game_state.input_state.key
+    if key[constant.Key.BACKSPACE].is_down and not key[constant.Key.BACKSPACE].was_down:
+        game_state.menu_isOpen = not game_state.menu_isOpen    
+        
     for wid in menu_widgets:
         x = pge.findWidgetById(wid._id)
         if x:
             pge.widgets.remove(x)
-    run = True
-    def draw_menu(menu_isOpen:bool, run:bool):
-        if menu_resumeButton.value: menu_isOpen = False
-        if menu_saveButton.value:
+
+    world.update()
+
+    pge.fill(pge.Colors.BLACK)
+
+    def draw_menu(menu_isOpen:bool):
+        run = True
+        if game_state.menu_resumeButton.value: 
+            menu_isOpen = False
+        if game_state.menu_saveButton.value:
             db.update_value('saves', 'data', save.id, save.getData())
-        if menu_exitButton.value: run = False
-        if menu_exitButton2.value: 
+        if game_state.menu_exitButton.value: 
+            run = False
+        if game_state.menu_exitButton2.value: 
             db.update_value('saves', 'data', save.id, save.getData())
             pge.exit()        
         
@@ -74,27 +84,18 @@ def game(save:Save):
         pge.draw_widgets(menu_widgets)
         
         return menu_isOpen, run
+               
+    world.draw()
+    mods.draw_mods(pge, GameObject, game_variables=dict(globals(), **locals())) 
 
-    while run:
-        for ev in pge.events:
-            if ev.type == pg.QUIT: pge.exit()
-            elif ev.type == pg.KEYDOWN:
-                if ev.key == pg.K_ESCAPE:
-                    menu_isOpen:bool = not menu_isOpen
+    if game_state.menu_isOpen: 
+        game_state.menu_isOpen, run = draw_menu(game_state.menu_isOpen)  
 
-        pge.fill(pge.Colors.BLACK)
-
-        GAME_SCREEN = constant.Menu.GAME
-        GameObject.screen_id = GAME_SCREEN        
-        world.update()                
-        world.draw()
-        mods.draw_mods(pge, GameObject, game_variables=dict(globals(), **locals()))                
-        if menu_isOpen: menu_isOpen, run = draw_menu(menu_isOpen, run)                        
-        ShowFPS()
-        pge.update()        
-        pge.fpsw()
-
-    db.update_value('saves', 'data', save.id, save.getData())
+    ShowFPS()
+    
+    if game_state.menu_exitButton.value:
+        game_state.menu_isOpen = False
+        db.update_value('saves', 'data', save.id, save.getData())
 
 def create_save(game_state):
     name_list1 = ['Robert','Carl','Michael','Stew','John','David','Sonic','Shapened','Robloxian','Ex','Neymar','Usually','Mr']
@@ -247,7 +248,7 @@ def save_select(game_state):
             game_state.current_save = buttons[2]
         elif buttons[1].value:
             game_state.to_confirm_delete = True
-            game_state.to_delete_id = buttons[2].id   
+            game_state.to_delete_id = buttons[2].id       
 
     pge.draw_text((240*RATIO, 551*RATIO),f'Current: {game_state.current_save.Savename[:10] if game_state.current_save else "None"}', PPF18, pge.Colors.WHITE, bgColor=pge.Colors.DARKGRAY, border_width=3, border_color=pge.Colors.BLACK)
     pge.draw_text((10*RATIO, 575*RATIO), f'Used Save Slots: {len(db.get_all("saves"))}/9', PPF12, pge.Colors.WHITE if len(db.get_all("saves")) < 9 else pge.Colors.DARKGRAY)                
@@ -307,10 +308,13 @@ def save_select(game_state):
                 game_state.to_delete_id = ''
             elif game_state.cancel_delete_button.value: # Cancel
                 to_confirm_delete = False
-                game_state.to_delete_id = ''
+                game_state.to_delete_id = ''    
 
     if game_state.Load_Save_Button.value and game_state.current_save is not None:
-        game(game_state.current_save)
+        game(game_state, game_state.current_save)
+        if not game_state.menu_exitButton.value:
+            return
+
     #@TODO: HACK
     for widget in save_select_widgets:
         if widget == None:

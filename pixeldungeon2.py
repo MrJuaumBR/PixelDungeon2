@@ -1,4 +1,6 @@
 #@TODO:  Fix ESCAPE that teleport you to the MAIN MENU
+#@TODO: Fix reload when enter a world and pressing ESCAPE
+
 from data.src import constant
 from data.src.config import *
 from data.src.screens import options, save_select, modsscreen
@@ -22,6 +24,7 @@ class GameState:
     input_state = InputState()
     key_pressed = []
 
+    #@TODO: Fix this mess later
     Confirm_Button = pyge.Button(pge, (50*RATIO, 130*RATIO), PPF16, 'Confirm (Y)', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
     Cancel_Button = pyge.Button(pge, (400*RATIO, 130*RATIO), PPF16, 'Cancel (N)', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
     
@@ -54,6 +57,13 @@ class GameState:
     save_button = pyge.Button(pge, (40*RATIO, 370*RATIO), PPF20, 'SAVE', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
     cancel_button = pyge.Button(pge, (300*RATIO, 370*RATIO), PPF20, 'CANCEL', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
     buttons_save_ids = []
+
+    menu_resumeButton = pyge.Button(pge, (50*RATIO, 70*RATIO), PPF16, 'RESUME', [pge.Colors.LIGHTGREEN, pge.Colors.DARKGREEN])
+    menu_saveButton = pyge.Button(pge, (50*RATIO, 90*RATIO), PPF16, 'SAVE', [pge.Colors.LIGHTBLUE, pge.Colors.DARKBLUE])
+    menu_exitButton = pyge.Button(pge, (50*RATIO, 110*RATIO), PPF16, 'EXIT', [pge.Colors.LIGHTRED, pge.Colors.DARKRED])
+    menu_exitButton2 = pyge.Button(pge, (50*RATIO, 130*RATIO), PPF14, 'EXIT TO DESKTOP', [pge.Colors.LIGHTRED, pge.Colors.DARKRED])
+
+    menu_isOpen = False
 def confirm_exit(game_state):
     """
     Confirm Exit
