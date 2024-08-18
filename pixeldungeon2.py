@@ -1,5 +1,4 @@
-#@TODO:  Fix ESCAPE that teleport you to the MAIN MENU
-#@TODO: Fix reload when enter a world and pressing ESCAPE
+#@TODO: Fix not saving the state when you leave the world or not loading
 
 from data.src import constant
 from data.src.config import *
@@ -27,12 +26,12 @@ class GameState:
     #@TODO: Fix this mess later
     Confirm_Button = pyge.Button(pge, (50*RATIO, 130*RATIO), PPF16, 'Confirm (Y)', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
     Cancel_Button = pyge.Button(pge, (400*RATIO, 130*RATIO), PPF16, 'Cancel (N)', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
-    
+    #
     Play_Button = pyge.Button(pge, (25*RATIO, 100*RATIO), PPF26, 'PLAY', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
     Options_Button = pyge.Button(pge, (25*RATIO, 138*RATIO), PPF26, 'OPTIONS', [P_LIGHTBLUE, P_DARKGRAY, pge.Colors.BLACK])
     Mods_Button = pyge.Button(pge, (25*RATIO, 176*RATIO), PPF26, 'MODS', [P_YELLOW, P_DARKGRAY, pge.Colors.BLACK])
     Exit_Button = pyge.Button(pge, (25*RATIO, 214*RATIO), PPF26, 'EXIT', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
-
+    #
     Back_Button = pyge.Button(pge, (5*RATIO, 5*RATIO), PPF12, '< BACK', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])    
     Volume_Slider = pyge.Slider(pge, (20*RATIO, 100*RATIO), (740*RATIO,30*RATIO), [P_PEAR, P_DARKGRAY, P_DARKGRAY],value=CONFIG['volume'], fill_passed=True)    
     Screen_size_select = pyge.Select(pge, (250*RATIO, 140*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c[0]}x{c[1]}' for c in SCREEN_SIZE_OPTIONS], CONFIG['screen_size'], False, tip=('Screen Size, using the size of your monitor with Fullscreen ON will make it gives a quality gain.',PPF10))    
@@ -41,7 +40,7 @@ class GameState:
     ShowFPS_checkbox = pyge.Checkbox(pge, (20*RATIO, 260*RATIO), PPF14, 'Show FPS', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY],tip=('Shows FPS counter.',PPF10))
     RenderDistance_select = pyge.Select(pge, (300*RATIO, 340*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c}' for c in RenderDistance_OPTIONS], CONFIG['RenderDistance'], False, tip=('Render Distance in pixels.',PPF10))
     FPSDynamic_checkbox = pyge.Checkbox(pge, (20*RATIO, 300*RATIO), PPF14, 'Dynamic FPS', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY],tip=('Will make the Time system work better with FPS floating.',PPF10))
-    
+    #
     Back_Button2 = pyge.Button(pge, (5*RATIO, 5*RATIO), PPF12, '< BACK', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
     Create_Save_Button = pyge.Button(pge, (10*RATIO, 550*RATIO), PPF20, 'CREATE SAVE', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
     Load_Save_Button = pyge.Button(pge, (600*RATIO, 550*RATIO), PPF20, 'LOAD SAVE', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
@@ -50,19 +49,19 @@ class GameState:
     to_confirm_delete = False
     to_delete_id:str = ''    
     current_save = None
-
+    #
     difficulties_select = pyge.Select(pge, (40*RATIO, 210*RATIO), PPF16, [P_PEAR, P_DARKGRAY, pge.Colors.BLACK], ['easy', 'medium', 'hard', 'extreme'], 1, True)
     elements_select = pyge.Select(pge, (40*RATIO, 290*RATIO), PPF16, [P_PEAR, P_DARKGRAY, pge.Colors.BLACK], ['fire', 'air', 'water', 'earth', 'light', 'dark', 'thunder', 'ice',], random.randint(0, len(['fire', 'air', 'water', 'earth', 'light', 'dark', 'thunder', 'ice',])-1), True)
     name_textbox = pyge.Textbox(pge, (40*RATIO, 130*RATIO), 20, [pge.Colors.DARKGRAY, pge.Colors.DARKGREEN, pge.Colors.WHITE, pge.Colors.WHITE], PPF16, random.choice(['Robert','Carl','Michael','Stew','John','David','Sonic','Shapened','Robloxian','Ex','Neymar','Usually','Mr']) + f'{"_" if random.randint(0,1)==1 else ""}' + random.choice( ['Hooke','Jonson','Stewart','Jones','Wright','Green','Pythonic','Gunner','Slicer','Ninja','Programmer','Jr','Potato','Juan']))
     save_button = pyge.Button(pge, (40*RATIO, 370*RATIO), PPF20, 'SAVE', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
     cancel_button = pyge.Button(pge, (300*RATIO, 370*RATIO), PPF20, 'CANCEL', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
     buttons_save_ids = []
-
+    #
     menu_resumeButton = pyge.Button(pge, (50*RATIO, 70*RATIO), PPF16, 'RESUME', [pge.Colors.LIGHTGREEN, pge.Colors.DARKGREEN])
     menu_saveButton = pyge.Button(pge, (50*RATIO, 90*RATIO), PPF16, 'SAVE', [pge.Colors.LIGHTBLUE, pge.Colors.DARKBLUE])
     menu_exitButton = pyge.Button(pge, (50*RATIO, 110*RATIO), PPF16, 'EXIT', [pge.Colors.LIGHTRED, pge.Colors.DARKRED])
     menu_exitButton2 = pyge.Button(pge, (50*RATIO, 130*RATIO), PPF14, 'EXIT TO DESKTOP', [pge.Colors.LIGHTRED, pge.Colors.DARKRED])
-
+    #
     menu_isOpen = False
 def confirm_exit(game_state):
     """
@@ -156,7 +155,8 @@ def main():
         # Logic
         key = game_state.input_state.key        
         if key[constant.Key.ESCAPE].is_down:
-            game_state.Exit_Button.value = True            
+            if game_state.mode == constant.Menu.MAIN:
+                game_state.Exit_Button.value = True            
                 
         if game_state.Play_Button.value:
             game_state.mode = constant.Menu.SAVE_SELECT
@@ -170,8 +170,6 @@ def main():
         game_state.Play_Button.value = game_state.Options_Button.value = game_state.Mods_Button.value = game_state.Exit_Button.value = False
 
         # Draw
-        #
-        
         if game_state.mode == constant.Menu.MAIN:
             GameObject.screen_id = game_state.mode
 

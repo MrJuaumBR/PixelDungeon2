@@ -239,7 +239,6 @@ def save_select(game_state):
         
         pos[0] += 235
     
-    #game_state.current_save = buttons_save[0][2]
     for buttons in buttons_save:
         if game_state.current_save == None:
             game_state.current_save = buttons[2]
@@ -259,7 +258,7 @@ def save_select(game_state):
         pge.draw_text((40*RATIO, 330*RATIO), f'Savename: {game_state.to_delete_id}', PPF12, pge.Colors.WHITE)
         game_state.confirm_delete_button.draw()
         game_state.cancel_delete_button.draw()
-        keys = game_state.input_state.key #pge.getKeys()
+        keys = game_state.input_state.key
         id1 = f'{game_state.to_delete_id}button_select'
         id2 = f'{game_state.to_delete_id}button_delete'
         if keys[constant.Key.Y].is_down: # Delete
