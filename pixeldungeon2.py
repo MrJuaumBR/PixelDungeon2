@@ -37,7 +37,14 @@ class GameState:
     RenderDistance_select = pyge.Select(pge, (300*RATIO, 340*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c}' for c in RenderDistance_OPTIONS], CONFIG['RenderDistance'], False, tip=('Render Distance in pixels.',PPF10))
     FPSDynamic_checkbox = pyge.Checkbox(pge, (20*RATIO, 300*RATIO), PPF14, 'Dynamic FPS', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY],tip=('Will make the Time system work better with FPS floating.',PPF10))
     
-
+    Back_Button2 = pyge.Button(pge, (5*RATIO, 5*RATIO), PPF12, '< BACK', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+    Create_Save_Button = pyge.Button(pge, (10*RATIO, 550*RATIO), PPF20, 'CREATE SAVE', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+    Load_Save_Button = pyge.Button(pge, (600*RATIO, 550*RATIO), PPF20, 'LOAD SAVE', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+    confirm_delete_button = pyge.Button(pge, (40*RATIO, 350*RATIO), PPF20, 'CONFIRM(y)', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
+    cancel_delete_button = pyge.Button(pge, (250*RATIO, 350*RATIO), PPF20, 'CANCEL(n)', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+    to_confirm_delete = False
+    to_delete_id:str = ''    
+    
 def confirm_exit(game_state):
     """
     Confirm Exit
@@ -129,7 +136,7 @@ def main():
         key = game_state.input_state.key        
         if key[constant.Key.ESCAPE].is_down:
             game_state.Exit_Button.value = True            
-        
+                
         if game_state.Play_Button.value:
             game_state.mode = constant.Menu.SAVE_SELECT
         elif game_state.Options_Button.value:
@@ -160,7 +167,7 @@ def main():
             ShowFPS()
         elif game_state.mode == constant.Menu.SAVE_SELECT:
             try:
-                save_select()
+                save_select(game_state)
             except Exception as e:
                 raise e
         elif game_state.mode == constant.Menu.OPTIONS:
