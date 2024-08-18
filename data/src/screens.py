@@ -1,6 +1,7 @@
 from data.src import constant
 from .ingame import *
 from .config import *
+from data.src import functions
 
 def modsscreen(game_state):
     """
@@ -93,7 +94,7 @@ def modsscreen(game_state):
     if Back_Button.value:  
         db.update_value('cfg', 'data',0, CONFIG)
         game_state.Mods_Button.value = False
-        game_state.mode = constant.Menu.MAIN
+        functions.pop_game_mode(game_state)
 
 def options(game_state):
     """
@@ -120,7 +121,8 @@ def options(game_state):
     GameObject.screen_id = GAME_SCREEN
     if game_state.Back_Button.value: 
         game_state.Options_Button.value = False
-        game_state.mode = constant.Menu.MAIN
+        functions.pop_game_mode(game_state)
+        
         # Update Config
         CONFIG['volume'] = round(game_state.Volume_Slider.value,2)
         CONFIG['screen_size'] = game_state.Screen_size_select.value

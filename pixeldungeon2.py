@@ -1,8 +1,9 @@
-#@TODO: Fix not saving the state when you leave the world or not loading
+#@TODO: Fix not saving the state when you leave the world or not loading it
 
 from data.src import constant
 from data.src.config import *
-from data.src.screens import options, save_select, modsscreen
+from data.src import screens #screens import options, save_select, modsscreen
+from data.src import functions
 
 class ButtonState:
     is_down = False
@@ -18,7 +19,7 @@ class InputState:
     mouse = MouseState()
 
 class GameState:
-    mode = constant.Menu.MAIN
+    mode = []
     old_input_state = InputState()
     input_state = InputState()
     key_pressed = []
@@ -63,6 +64,7 @@ class GameState:
     menu_exitButton2 = pyge.Button(pge, (50*RATIO, 130*RATIO), PPF14, 'EXIT TO DESKTOP', [pge.Colors.LIGHTRED, pge.Colors.DARKRED])
     #
     menu_isOpen = False
+
 def confirm_exit(game_state):
     """
     Confirm Exit
@@ -87,7 +89,7 @@ def confirm_exit(game_state):
         result = True    
     elif key[constant.Key.N].is_down or Cancel_Button.value:
         game_state.Exit_Button.value = False
-        game_state.mode = constant.Menu.MAIN
+        functions.push_game_mode(functions.peek_game_mode(game_state), constant.Menu.MAIN)
 
     # Draw
     pge.fill(pge.Colors.BLACK)
@@ -110,18 +112,17 @@ def main():
     """
     Main Loop + Main Menu
     """
-    # Setup our input_state
+    # Setup our game_state
     game_state = GameState() 
+    functions.push_game_mode(game_state, constant.Menu.MAIN)
     game_state.Fullscreen_checkbox.value = CONFIG['fullscreen']   
     game_state.ShowFPS_checkbox.value = CONFIG['show_fps']        
     game_state.FPSDynamic_checkbox.value = CONFIG['dynamic_fps']  
-
     for key, value in vars(constant.Key).items():
         if (not callable(value)) and (not key.startswith("__")):
             game_state.input_state.key[value] = ButtonState()
 
-    pge.enableFPS_unstable(CONFIG['dynamic_fps'])    
-    
+    pge.enableFPS_unstable(CONFIG['dynamic_fps'])        
     main_widgets = [
         game_state.Play_Button,
         game_state.Options_Button,
@@ -155,23 +156,23 @@ def main():
         # Logic
         key = game_state.input_state.key        
         if key[constant.Key.ESCAPE].is_down:
-            if game_state.mode == constant.Menu.MAIN:
+            if functions.peek_game_mode(game_state) == constant.Menu.MAIN:
                 game_state.Exit_Button.value = True            
                 
         if game_state.Play_Button.value:
-            game_state.mode = constant.Menu.SAVE_SELECT
+            functions.push_game_mode(game_state, constant.Menu.SAVE_SELECT)
         elif game_state.Options_Button.value:
-            game_state.mode = constant.Menu.OPTIONS
+            functions.push_game_mode(game_state, constant.Menu.OPTIONS)
         elif game_state.Mods_Button.value: 
-            game_state.mode = constant.Menu.MODS_SCREEN
+            functions.push_game_mode(game_state, constant.Menu.MODS_SCREEN)
         elif game_state.Exit_Button.value:
-            game_state.mode = constant.Menu.CONFIRM_EXIT
+            functions.push_game_mode(game_state, constant.Menu.CONFIRM_EXIT)
         
         game_state.Play_Button.value = game_state.Options_Button.value = game_state.Mods_Button.value = game_state.Exit_Button.value = False
 
         # Draw
-        if game_state.mode == constant.Menu.MAIN:
-            GameObject.screen_id = game_state.mode
+        if functions.peek_game_mode(game_state) == constant.Menu.MAIN:
+            GameObject.screen_id = functions.peek_game_mode(game_state)
 
             pge.fill(pge.Colors.BLACK)
             # Game Title + Shadow
@@ -184,20 +185,21 @@ def main():
             pge.draw_widgets(main_widgets)  
             mods.draw_mods(pge,GameObject)
             ShowFPS()
-        elif game_state.mode == constant.Menu.SAVE_SELECT:
+        elif functions.peek_game_mode(game_state) == constant.Menu.SAVE_SELECT:
             try:
-                save_select(game_state)
+                screens.save_select(game_state)
             except Exception as e:
                 raise e
-        elif game_state.mode == constant.Menu.OPTIONS:
-            options(game_state)
-        elif game_state.mode == constant.Menu.MODS_SCREEN: 
-            modsscreen(game_state)
-        elif game_state.mode == constant.Menu.CONFIRM_EXIT:
+        elif functions.peek_game_mode(game_state) == constant.Menu.OPTIONS:
+            screens.options(game_state)
+        elif functions.peek_game_mode(game_state) == constant.Menu.MODS_SCREEN: 
+            screens.modsscreen(game_state)
+        elif functions.peek_game_mode(game_state) == constant.Menu.CONFIRM_EXIT:
             confirm_exit_result = confirm_exit(game_state)
             is_running = not confirm_exit_result
 
         #@TODO: Should probably be the last thing we do but i need to fix the timer first. Also its not my fault to be messy.
+        game_state.key_pressed.clear()                
         for key, value in vars(constant.Key).items():
             if (not callable(value)) and (not key.startswith("__")):
                 game_state.input_state.key[value].was_down = game_state.input_state.key[value].is_down                

@@ -1,5 +1,6 @@
 from data.src import constant
 from .config import *
+from data.src import functions
 
 from .save import Save,Player, World
 elements = [
@@ -175,7 +176,7 @@ def save_select(game_state):
     
     if game_state.Back_Button2.value: 
         game_state.Play_Button.value = False
-        game_state.mode = constant.Menu.MAIN
+        functions.pop_game_mode(game_state)
 
     GAME_SCREEN = constant.Menu.SAVE_SELECT
     GameObject.screen_id = GAME_SCREEN    
