@@ -96,73 +96,57 @@ def game(save:Save):
 
     db.update_value('saves', 'data', save.id, save.getData())
 
-def create_save():
+def create_save(game_state):
     name_list1 = ['Robert','Carl','Michael','Stew','John','David','Sonic','Shapened','Robloxian','Ex','Neymar','Usually','Mr']
     name_list2 = ['Hooke','Jonson','Stewart','Jones','Wright','Green','Pythonic','Gunner','Slicer','Ninja','Programmer','Jr','Potato','Juan']
-    preset_name = random.choice(name_list1) + f'{"_" if random.randint(0,1)==1 else ""}' + random.choice(name_list2)
-    
-    run = True
-    
-    difficulties_select = pyge.Select(pge, (40*RATIO, 210*RATIO), PPF16, [P_PEAR, P_DARKGRAY, pge.Colors.BLACK], difficulties, 1, True)
-    
-    elements_select = pyge.Select(pge, (40*RATIO, 290*RATIO), PPF16, [P_PEAR, P_DARKGRAY, pge.Colors.BLACK], elements, random.randint(0, len(elements)-1), True)
-    
-    name_textbox = pyge.Textbox(pge, (40*RATIO, 130*RATIO), 20, [pge.Colors.DARKGRAY, pge.Colors.DARKGREEN, pge.Colors.WHITE, pge.Colors.WHITE], PPF16, preset_name)
-    
-    save_button = pyge.Button(pge, (40*RATIO, 370*RATIO), PPF20, 'SAVE', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
-    cancel_button = pyge.Button(pge, (300*RATIO, 370*RATIO), PPF20, 'CANCEL', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
-    
-    create_save_widgets = [difficulties_select, elements_select,name_textbox,save_button, cancel_button]
-    while run:
-        for ev in pge.events:
-            if ev.type == pg.QUIT: 
-                pge.exit()
-            elif ev.type == pg.KEYUP:
-                if ev.key == pg.K_ESCAPE: 
-                    run = False
-            elif ev.type == pg.MOUSEBUTTONDOWN:
-                if pge.getMousePressed(5)[3]: 
-                    run = False
+    preset_name = random.choice(name_list1) + f'{"_" if random.randint(0,1)==1 else ""}' + random.choice(name_list2)    
 
-        pge.fill(pge.Colors.BLACK)
+    create_save_widgets = [game_state.difficulties_select, game_state.elements_select, game_state.name_textbox, game_state.save_button, game_state.cancel_button]       
 
-        GAME_SCREEN = constant.Menu.CREATE_SAVE
-        GameObject.screen_id = GAME_SCREEN
-        # Game Title + Shadow
-        pge.draw_text((13*RATIO,15*RATIO),'Create Save', GGF32, pge.Colors.DARKGRAY)
-        pge.draw_text((15*RATIO,15*RATIO), 'Create Save', GGF34, pge.Colors.WHITE)
+    pge.fill(pge.Colors.BLACK)
+
+    GAME_SCREEN = constant.Menu.CREATE_SAVE
+    GameObject.screen_id = GAME_SCREEN
+    # Game Title + Shadow
+    pge.draw_text((13*RATIO,15*RATIO),'Create Save', GGF32, pge.Colors.DARKGRAY)
+    pge.draw_text((15*RATIO,15*RATIO), 'Create Save', GGF34, pge.Colors.WHITE)
+    #@TODO: Cant enter a name
+    # Form
+    pge.draw_text((10*RATIO, 100*RATIO), 'Name: ', PPF20, pge.Colors.WHITE)
+    pge.draw_text((10*RATIO, 180*RATIO), 'Difficulty: ', PPF20, pge.Colors.WHITE)
+    game_state.difficulties_select.colors[0] = colors['difficulty'][str(game_state.difficulties_select.value)]
+    
+    pge.draw_text((10*RATIO, 260*RATIO), 'Element: ', PPF20, pge.Colors.WHITE)
+    game_state.elements_select.colors[0] = colors['element'][str(game_state.elements_select.value)]
+    
+    if game_state.cancel_button.value:
+        game_state.name_textbox.text = preset_name
+        game_state.Create_Save_Button.value = False
+    elif game_state.save_button.value:
+        # Create Save
+        SS = Save(game_state.name_textbox.value, game_state.difficulties_select.value, game_state.elements_select.value)
+        SS.id = SS.Savename+str(random.randint(0,10000))
         
-        # Form
-        pge.draw_text((10*RATIO, 100*RATIO), 'Name: ', PPF20, pge.Colors.WHITE)
-        pge.draw_text((10*RATIO, 180*RATIO), 'Difficulty: ', PPF20, pge.Colors.WHITE)
-        difficulties_select.colors[0] = colors['difficulty'][str(difficulties_select.value)]
-        
-        pge.draw_text((10*RATIO, 260*RATIO), 'Element: ', PPF20, pge.Colors.WHITE)
-        elements_select.colors[0] = colors['element'][str(elements_select.value)]
-        
-        if cancel_button.value:
-            run = False
-        elif save_button.value:
-            # Create Save
-            SS = Save(name_textbox.value, difficulties_select.value, elements_select.value)
-            SS.id = SS.Savename+str(random.randint(0,10000))
+        if 'saves' in db.tables.keys():
+            db.add_value('saves', 'data',id=SS.id, value=SS.getData())
+            db.save()
+        game_state.name_textbox.text = preset_name
+        game_state.Create_Save_Button.value = False  
             
-            if 'saves' in db.tables.keys():
-                db.add_value('saves', 'data',id=SS.id, value=SS.getData())
-                db.save()
-            run = False                
-                
-        pge.draw_widgets(create_save_widgets)
-        mods.draw_mods(pge,GameObject)
-        ShowFPS()
-        pge.update()        
-        pge.fpsw()
+    #@TODO: HACK
+    for widget in create_save_widgets:
+        if widget == None:
+            widget.build_widget_display() 
+    pge.draw_widgets(create_save_widgets)
+    mods.draw_mods(pge,GameObject)
+
+    ShowFPS()   
 
 def save_select(game_state):
     """
     Save Select Screen
     """
-    current_save:Save = None
+    
     saves:dict[Save,] = {}
     for save in db.get_all('saves'):
         x = Save('',0,0)
@@ -176,29 +160,32 @@ def save_select(game_state):
     save_select_widgets = [game_state.Back_Button2, game_state.Create_Save_Button, game_state.Load_Save_Button]
     buttons_save:list[list[pyge.Button, pyge.Button, Save]] = []        
     buttons_save_ids = [] 
-
-    #@TODO: Where do I put this?
+    
     if game_state.Back_Button2.value: 
         game_state.Play_Button.value = False
         game_state.mode = constant.Menu.MAIN
+
+    GAME_SCREEN = constant.Menu.SAVE_SELECT
+    GameObject.screen_id = GAME_SCREEN    
+    if len(saves) <= 0: pge.draw_text((60*RATIO, 240*RATIO),'A little bit empty here...', PPF18, pge.Colors.DARKGRAY, alpha=200)
     
+    if game_state.Create_Save_Button.value and len(db.get_all('saves')) < 9:        
+        create_save(game_state)
+        saves:dict[Save,] = {}
+        for save in db.get_all('saves'):
+            x = Save('',0,0)
+            x.loadData(save['data'])
+            saves[str(save['id'])] = x
+
+    if game_state.Create_Save_Button.value:
+        return
+
     pge.fill(pge.Colors.BLACK)
 
     # Screen Title + Shadow
     pge.draw_text((13*RATIO,15*RATIO),'Save Select', GGF32, pge.Colors.DARKGRAY)
     pge.draw_text((15*RATIO,15*RATIO), 'Save Select', GGF34, pge.Colors.WHITE)
 
-    GAME_SCREEN = constant.Menu.SAVE_SELECT
-    GameObject.screen_id = GAME_SCREEN    
-    if len(saves) <= 0: pge.draw_text((60*RATIO, 240*RATIO),'A little bit empty here...', PPF18, pge.Colors.DARKGRAY, alpha=200)
-    
-    if game_state.Create_Save_Button.value and len(db.get_all('saves')) < 9:
-        create_save()
-        saves:dict[Save,] = {}
-        for save in db.get_all('saves'):
-            x = Save('',0,0)
-            x.loadData(save['data'])
-            saves[str(save['id'])] = x
     pos = [50,65]
     for save_id in saves.keys():
         if pos[0] >= 800-230:
@@ -240,16 +227,18 @@ def save_select(game_state):
         
         pos[0] += 235
     
+    #game_state.current_save = buttons_save[0][2]
     for buttons in buttons_save:
-        current_save = buttons[2]
+        if game_state.current_save == None:
+            game_state.current_save = buttons[2]
 
         if buttons[0].value:
-            current_save = buttons[2]
+            game_state.current_save = buttons[2]
         elif buttons[1].value:
             game_state.to_confirm_delete = True
             game_state.to_delete_id = buttons[2].id   
 
-    pge.draw_text((240*RATIO, 551*RATIO),f'Current: {current_save.Savename[:10] if current_save else "None"}', PPF18, pge.Colors.WHITE, bgColor=pge.Colors.DARKGRAY, border_width=3, border_color=pge.Colors.BLACK)
+    pge.draw_text((240*RATIO, 551*RATIO),f'Current: {game_state.current_save.Savename[:10] if game_state.current_save else "None"}', PPF18, pge.Colors.WHITE, bgColor=pge.Colors.DARKGRAY, border_width=3, border_color=pge.Colors.BLACK)
     pge.draw_text((10*RATIO, 575*RATIO), f'Used Save Slots: {len(db.get_all("saves"))}/9', PPF12, pge.Colors.WHITE if len(db.get_all("saves")) < 9 else pge.Colors.DARKGRAY)                
                     
     if game_state.to_confirm_delete and not (game_state.to_delete_id in ['',' ',None,'None']):
@@ -309,13 +298,13 @@ def save_select(game_state):
                 to_confirm_delete = False
                 game_state.to_delete_id = ''
 
-    if game_state.Load_Save_Button.value and current_save is not None:
-        game(current_save)
-
+    if game_state.Load_Save_Button.value and game_state.current_save is not None:
+        game(game_state.current_save)
     #@TODO: HACK
     for widget in save_select_widgets:
-        widget.build_widget_display() 
+        if widget == None:
+            widget.build_widget_display() 
     pge.draw_widgets(save_select_widgets)
-    mods.draw_mods(pge,GameObject, current_save=current_save)
+    mods.draw_mods(pge,GameObject, current_save=game_state.current_save)
     
     ShowFPS()   

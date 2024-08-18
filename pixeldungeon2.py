@@ -44,7 +44,14 @@ class GameState:
     cancel_delete_button = pyge.Button(pge, (250*RATIO, 350*RATIO), PPF20, 'CANCEL(n)', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
     to_confirm_delete = False
     to_delete_id:str = ''    
-    
+    current_save = None
+
+    difficulties_select = pyge.Select(pge, (40*RATIO, 210*RATIO), PPF16, [P_PEAR, P_DARKGRAY, pge.Colors.BLACK], ['easy', 'medium', 'hard', 'extreme'], 1, True)
+    elements_select = pyge.Select(pge, (40*RATIO, 290*RATIO), PPF16, [P_PEAR, P_DARKGRAY, pge.Colors.BLACK], ['fire', 'air', 'water', 'earth', 'light', 'dark', 'thunder', 'ice',], random.randint(0, len(['fire', 'air', 'water', 'earth', 'light', 'dark', 'thunder', 'ice',])-1), True)
+    name_textbox = pyge.Textbox(pge, (40*RATIO, 130*RATIO), 20, [pge.Colors.DARKGRAY, pge.Colors.DARKGREEN, pge.Colors.WHITE, pge.Colors.WHITE], PPF16, random.choice(['Robert','Carl','Michael','Stew','John','David','Sonic','Shapened','Robloxian','Ex','Neymar','Usually','Mr']) + f'{"_" if random.randint(0,1)==1 else ""}' + random.choice( ['Hooke','Jonson','Stewart','Jones','Wright','Green','Pythonic','Gunner','Slicer','Ninja','Programmer','Jr','Potato','Juan']))
+    save_button = pyge.Button(pge, (40*RATIO, 370*RATIO), PPF20, 'SAVE', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+    cancel_button = pyge.Button(pge, (300*RATIO, 370*RATIO), PPF20, 'CANCEL', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
+    buttons_save_ids = []
 def confirm_exit(game_state):
     """
     Confirm Exit
