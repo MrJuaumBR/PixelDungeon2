@@ -19,12 +19,24 @@ class GameState:
     mode = constant.Menu.MAIN
     old_input_state = InputState()
     input_state = InputState()
+    
     Confirm_Button = pyge.Button(pge, (50*RATIO, 130*RATIO), PPF16, 'Confirm (Y)', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
     Cancel_Button = pyge.Button(pge, (400*RATIO, 130*RATIO), PPF16, 'Cancel (N)', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+    
     Play_Button = pyge.Button(pge, (25*RATIO, 100*RATIO), PPF26, 'PLAY', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
     Options_Button = pyge.Button(pge, (25*RATIO, 138*RATIO), PPF26, 'OPTIONS', [P_LIGHTBLUE, P_DARKGRAY, pge.Colors.BLACK])
     Mods_Button = pyge.Button(pge, (25*RATIO, 176*RATIO), PPF26, 'MODS', [P_YELLOW, P_DARKGRAY, pge.Colors.BLACK])
     Exit_Button = pyge.Button(pge, (25*RATIO, 214*RATIO), PPF26, 'EXIT', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
+
+    Back_Button = pyge.Button(pge, (5*RATIO, 5*RATIO), PPF12, '< BACK', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])    
+    Volume_Slider = pyge.Slider(pge, (20*RATIO, 100*RATIO), (740*RATIO,30*RATIO), [P_PEAR, P_DARKGRAY, P_DARKGRAY],value=CONFIG['volume'], fill_passed=True)    
+    Screen_size_select = pyge.Select(pge, (250*RATIO, 140*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c[0]}x{c[1]}' for c in SCREEN_SIZE_OPTIONS], CONFIG['screen_size'], False, tip=('Screen Size, using the size of your monitor with Fullscreen ON will make it gives a quality gain.',PPF10))    
+    FPS_select = pyge.Select(pge, (130*RATIO, 180*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c}' for c in FPS_OPTIONS], CONFIG['fps'], False, tip=('Sets the limit that the game will run of FPS.',PPF10))
+    Fullscreen_checkbox = pyge.Checkbox(pge, (20*RATIO, 220*RATIO), PPF14, 'Fullscreen', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY],tip=('Enables fullscreen mode.',PPF10))
+    ShowFPS_checkbox = pyge.Checkbox(pge, (20*RATIO, 260*RATIO), PPF14, 'Show FPS', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY],tip=('Shows FPS counter.',PPF10))
+    RenderDistance_select = pyge.Select(pge, (300*RATIO, 340*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c}' for c in RenderDistance_OPTIONS], CONFIG['RenderDistance'], False, tip=('Render Distance in pixels.',PPF10))
+    FPSDynamic_checkbox = pyge.Checkbox(pge, (20*RATIO, 300*RATIO), PPF14, 'Dynamic FPS', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY],tip=('Will make the Time system work better with FPS floating.',PPF10))
+    
 
 def confirm_exit(game_state):
     """
@@ -75,6 +87,10 @@ def main():
     """
     # Setup our input_state
     game_state = GameState() 
+    game_state.Fullscreen_checkbox.value = CONFIG['fullscreen']   
+    game_state.ShowFPS_checkbox.value = CONFIG['show_fps']        
+    game_state.FPSDynamic_checkbox.value = CONFIG['dynamic_fps']  
+
     for key, value in vars(constant.Key).items():
         if (not callable(value)) and (not key.startswith("__")):
             game_state.input_state.key[value] = ButtonState()
@@ -148,7 +164,7 @@ def main():
             except Exception as e:
                 raise e
         elif game_state.mode == constant.Menu.OPTIONS:
-            options()
+            options(game_state)
         elif game_state.mode == constant.Menu.MODS_SCREEN: 
             modsscreen(game_state)
         elif game_state.mode == constant.Menu.CONFIRM_EXIT:

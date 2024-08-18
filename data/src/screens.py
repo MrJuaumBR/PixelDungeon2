@@ -95,88 +95,63 @@ def modsscreen(game_state):
         game_state.Mods_Button.value = False
         game_state.mode = constant.Menu.MAIN
 
-def options():
+def options(game_state):
     """
     Options Screen
-    """
-    run = True
-    Volume_Slider = pyge.Slider(pge, (20*RATIO, 100*RATIO), (740*RATIO,30*RATIO), [P_PEAR, P_DARKGRAY, P_DARKGRAY],value=CONFIG['volume'], fill_passed=True)
-    
-    Screen_size_select = pyge.Select(pge, (250*RATIO, 140*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c[0]}x{c[1]}' for c in SCREEN_SIZE_OPTIONS], CONFIG['screen_size'], False, tip=('Screen Size, using the size of your monitor with Fullscreen ON will make it gives a quality gain.',PPF10))
-    
-    FPS_select = pyge.Select(pge, (130*RATIO, 180*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c}' for c in FPS_OPTIONS], CONFIG['fps'], False, tip=('Sets the limit that the game will run of FPS.',PPF10))
-    
-    Fullscreen_checkbox = pyge.Checkbox(pge, (20*RATIO, 220*RATIO), PPF14, 'Fullscreen', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY],tip=('Enables fullscreen mode.',PPF10))
-    Fullscreen_checkbox.value = CONFIG['fullscreen']
-    
-    ShowFPS_checkbox = pyge.Checkbox(pge, (20*RATIO, 260*RATIO), PPF14, 'Show FPS', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY],tip=('Shows FPS counter.',PPF10))
-    ShowFPS_checkbox.value = CONFIG['show_fps']
-    
-    FPSDynamic_checkbox = pyge.Checkbox(pge, (20*RATIO, 300*RATIO), PPF14, 'Dynamic FPS', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY],tip=('Will make the Time system work better with FPS floating.',PPF10))
-    FPSDynamic_checkbox.value = CONFIG['dynamic_fps']
-    
-    RenderDistance_select = pyge.Select(pge, (300*RATIO, 340*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c}' for c in RenderDistance_OPTIONS], CONFIG['RenderDistance'], False, tip=('Render Distance in pixels.',PPF10))
-    
-    Back_Button = pyge.Button(pge, (5*RATIO, 5*RATIO), PPF12, '< BACK', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
-    
+    """          
     options_widgets = [
-        Back_Button,
-        Volume_Slider,
-        Screen_size_select,
-        FPS_select,
-        Fullscreen_checkbox,
-        ShowFPS_checkbox,
-        FPSDynamic_checkbox,
-        RenderDistance_select
+        game_state.Back_Button,
+        game_state.Volume_Slider,
+        game_state.Screen_size_select,
+        game_state.FPS_select,
+        game_state.Fullscreen_checkbox,
+        game_state.ShowFPS_checkbox,
+        game_state.FPSDynamic_checkbox,
+        game_state.RenderDistance_select,
     ]
-    while run:
-        for ev in pge.events:
-            if ev.type == pg.QUIT: 
-                pge.exit()
-            elif ev.type == pg.KEYUP:
-                if ev.key == pg.K_ESCAPE:
-                    run = False
-                elif ev.key == pg.K_F1:
-                    pdb.get_content()
-            elif ev.type == pg.MOUSEBUTTONDOWN:
-                if pge.getMousePressed(5)[3]: 
-                    run = False
-
-        pge.fill(pge.Colors.BLACK)
-
-        GAME_SCREEN = constant.Menu.OPTIONS
-        GameObject.screen_id = GAME_SCREEN
-        if Back_Button.value: 
-            run = False
-            
-        # Screen Title + Shadow
-        pge.draw_text((13*RATIO,15*RATIO),'Options', GGF32, pge.Colors.DARKGRAY)
-        pge.draw_text((15*RATIO,15*RATIO), 'Options', GGF34, pge.Colors.WHITE)
-        
-        # Texts
-        pge.draw_text((15*RATIO,70*RATIO), f'Volume: {int(Volume_Slider.value*100)}%', PPF16, pge.Colors.WHITE)
-        pge.draw_text((20*RATIO,140*RATIO), f'Screen Size: ', PPF16, pge.Colors.WHITE)
-        pge.draw_text((20*RATIO,180*RATIO), f'FPS:', PPF16, pge.Colors.WHITE)
-        pge.draw_text((20*RATIO, 340*RATIO), f'Render Distance:', PPF16, pge.Colors.WHITE)
-        
-        # Update
-        CONFIG['volume'] = round(Volume_Slider.value,2)
-        CONFIG['screen_size'] = Screen_size_select.value
-        CONFIG['fps'] = FPS_select.value
-        CONFIG['show_fps'] = ShowFPS_checkbox.value
-        CONFIG['fullscreen'] = Fullscreen_checkbox.value
-        CONFIG['dynamic_fps'] = FPSDynamic_checkbox.value
-        CONFIG['RenderDistance'] = RenderDistance_select.value
-        GameObject.config = CONFIG            
-        
-        pge.draw_widgets(options_widgets)
-        mods.draw_mods(pge,GameObject)
-        ShowFPS()
-        pge.update()        
-        pge.fpsw()
-        
-    # Update Config
-    db.update_value('cfg', 'data', 0, CONFIG)
-    db.save()
     
-    pge.setFPS(FPS_OPTIONS[CONFIG['fps']])
+    key = game_state.input_state.key        
+    if key[constant.Key.F1].is_down:
+        pdb.get_content()
+    
+    GameObject.config = CONFIG            
+
+    GAME_SCREEN = constant.Menu.OPTIONS
+    GameObject.screen_id = GAME_SCREEN
+    if game_state.Back_Button.value: 
+        game_state.Options_Button.value = False
+        game_state.mode = constant.Menu.MAIN
+        # Update Config
+        CONFIG['volume'] = round(game_state.Volume_Slider.value,2)
+        CONFIG['screen_size'] = game_state.Screen_size_select.value
+        CONFIG['fps'] = game_state.FPS_select.value
+        CONFIG['show_fps'] = game_state.ShowFPS_checkbox.value
+        CONFIG['fullscreen'] = game_state.Fullscreen_checkbox.value
+        CONFIG['dynamic_fps'] = game_state.FPSDynamic_checkbox.value
+        CONFIG['RenderDistance'] = game_state.RenderDistance_select.value
+        pge.setFPS(FPS_OPTIONS[CONFIG['fps']])
+        db.update_value('cfg', 'data', 0, CONFIG)
+        db.save()   
+
+    pge.fill(pge.Colors.BLACK)
+        
+    # Screen Title + Shadow
+    pge.draw_text((13*RATIO,15*RATIO),'Options', GGF32, pge.Colors.DARKGRAY)
+    pge.draw_text((15*RATIO,15*RATIO), 'Options', GGF34, pge.Colors.WHITE)
+    
+    # Texts
+    pge.draw_text((15*RATIO,70*RATIO), f'Volume: {int(game_state.Volume_Slider.value*100)}%', PPF16, pge.Colors.WHITE)
+    pge.draw_text((20*RATIO,140*RATIO), f'Screen Size: ', PPF16, pge.Colors.WHITE)
+    pge.draw_text((20*RATIO,180*RATIO), f'FPS:', PPF16, pge.Colors.WHITE)
+    pge.draw_text((20*RATIO, 340*RATIO), f'Render Distance:', PPF16, pge.Colors.WHITE)    
+    
+    #@TODO: HACK
+    for widget in options_widgets:
+        if widget == None:
+            widget.build_widget_display() 
+    pge.draw_widgets(options_widgets)
+    mods.draw_mods(pge,GameObject)                 
+    
+    if CONFIG['show_fps']:
+        ShowFPS()
+        
