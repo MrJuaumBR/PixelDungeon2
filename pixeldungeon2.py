@@ -1,5 +1,4 @@
 #@TODO: Fix not saving the state when you leave the world or not loading it
-#@TODO: Fix remember the last save name that was deleted
 
 from data.src import constant
 from data.src.config import *
@@ -94,7 +93,7 @@ def confirm_exit(game_state):
         result = True    
     elif key[constant.Key.N].is_down or Cancel_Button.value:
         game_state.Exit_Button.value = False
-        functions.push_game_mode(functions.peek_game_mode(game_state), constant.Menu.MAIN)
+        functions.push_game_mode(game_state, constant.Menu.MAIN)
 
     # Draw
     pge.fill(pge.Colors.BLACK)
@@ -192,10 +191,7 @@ def main():
             ShowFPS()
         elif functions.peek_game_mode(game_state) == constant.Menu.SAVE_SELECT:
             try:
-                s = time.perf_counter()        
                 screens.save_select(game_state)
-                e = time.perf_counter()
-                #print((e - s) * 1000.0)
             except Exception as e:
                 raise e
         elif functions.peek_game_mode(game_state) == constant.Menu.OPTIONS:
