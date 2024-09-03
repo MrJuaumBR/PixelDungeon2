@@ -1,4 +1,4 @@
-import os, sys, importlib, threading
+import os, sys, importlib, threading,shutil
 import pygameengine
 
 _ACCEPTABLE_FILES = ['pyplugin','mod','pymod','py']
@@ -12,6 +12,7 @@ class Mods:
         self.mods = []
         self.paths = []
         self.load_mods()
+        self.create_paths()
 
     def number_of_mods(self) -> int:
         return int(len(self.mods_data.keys())/2)
@@ -133,3 +134,41 @@ class Mods:
                 print(f'Invalid Mod: {path}, Metadata: {metadata}')
             else:
                 self.mods.append([metadata, path])
+                
+    def create_paths(self):
+        if not os.path.exists('./data/mods/mods_files'):
+            os.mkdir('./data/mods/mods_files')
+        for mod in self.mods:
+            mod_name:str = mod[0]['Mod_Name']
+            mod_name = mod_name.replace(' ','')
+            if not os.path.exists('./data/mods/mods_files/' + mod_name):
+                if not os.path.isdir('./data/mods/mods_files/' + mod_name):
+                    os.mkdir('./data/mods/mods_files/' + mod_name)
+                else:
+                    print(f'non Folder file exists: ./data/mods/mods_files/{mod_name}')
+                    
+    def remove_mod(self, mod_name:str):
+        mod_path = ''
+        for mod in self.mods:
+            if mod[0]['Mod_Name'] == mod_name:
+                self.mods.remove(mod)
+                mod_path = mod[1]
+                break
+            
+        for path in self.paths:
+            if path == mod_path:
+                self.paths.remove(path)
+                break
+            
+        for data in self.mods_data.keys():
+            if data == mod_name:
+                self.mods_data.pop(data)
+                break
+            
+        if os.path.exists(mod_path):
+            os.remove(mod_path)
+
+        fmod_name = mod_name.replace(' ','')
+        if os.path.exists('./data/mods/mods_files/' + fmod_name):
+            shutil.rmtree(f'./data/mods/mods_files/{fmod_name}')
+        print(f'Removed mod: {mod_path}')

@@ -10,17 +10,15 @@ Install the [requirments](#requirements)
 - ! About the *In-Game*, the in-game system is f*cked, and i will need to fix this, but also i need to rework this, so i will erase all and rewrite all of the system, more delay on the next updates.
 
 # Changes
-**V1.0.2**
-- Render Distance/Field Of View now are working, can help for low perfomance PCs;
-- Draw Map changed;
-- Fixed Sprites Backgrounds;
-- Re-worked Barrier Sprite;
-- Water & Barrier Animated;
-- FPS Independant Animation;
-- Gravity FPS Independant;
-- Tips for some Widgets;
-- Engine updated;
-
+**V1.0.3**
+- [ ] Start In-Game rework;
+- [x] Re-work Widgets system;
+- [x] Change Some Widgets from Options;
+- [x] Remake Mods Screen;
+- [x] Add Mods Files compatibility;
+- [x] Delete mod system;
+- [x] Debug Mod Update;
+ 
 # How to edit maps?
 is easy to edit maps, only follow this steps:
 - 1. Find "Data" folder in your game directory;
@@ -34,7 +32,7 @@ is easy to edit maps, only follow this steps:
 - [@akvendramin](https://github.com/akvendramin)
 
 # Requirements
-- maxpygame >= 0.1.7fix2
+- maxpygame(most recent ever.)
 - pygame
 - xlwt
 - JPyDB >= 0.8.1

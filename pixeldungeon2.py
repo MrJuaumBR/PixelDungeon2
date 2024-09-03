@@ -9,8 +9,8 @@ def confirm_exit():
     run = True
     will_exit = False
     
-    Confirm_Button = pyge.Button(pge, (50*RATIO, 130*RATIO), PPF16, 'Confirm (Y)', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
-    Cancel_Button = pyge.Button(pge, (400*RATIO, 130*RATIO), PPF16, 'Cancel (N)', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+    Confirm_Button = GameMenu.ExitMenu_ConfirmButton
+    Cancel_Button = GameMenu.ExitMenu_CancelButton
     
     exit_widgets = [
         Confirm_Button,
@@ -64,10 +64,10 @@ def main():
     Main Loop + Main Menu
     """
     pge.enableFPS_unstable(CONFIG['dynamic_fps'])
-    Play_Button = pyge.Button(pge, (25*RATIO, 100*RATIO), PPF26, 'PLAY', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
-    Options_Button = pyge.Button(pge, (25*RATIO, 138*RATIO), PPF26, 'OPTIONS', [P_LIGHTBLUE, P_DARKGRAY, pge.Colors.BLACK])
-    Mods_Button = pyge.Button(pge, (25*RATIO, 176*RATIO), PPF26, 'MODS', [P_YELLOW, P_DARKGRAY, pge.Colors.BLACK])
-    Exit_Button = pyge.Button(pge, (25*RATIO, 214*RATIO), PPF26, 'EXIT', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
+    Play_Button = GameMenu.MainMenu_PlayButton
+    Options_Button = GameMenu.MainMenu_OptionsButton
+    Mods_Button = GameMenu.MainMenu_ModsButton
+    Exit_Button = GameMenu.MainMenu_ExitButton
     main_widgets = [
         Play_Button,
         Options_Button,
@@ -92,11 +92,9 @@ def main():
                 save_select()
             except Exception as e:
                 raise e
-        if Options_Button.value and GAME_SCREEN != 5:
-            options()
+        if Options_Button.value and GAME_SCREEN != 5: options()
         if Mods_Button.value and GAME_SCREEN != 5: modsscreen()
-        if Exit_Button.value:
-            confirm_exit()
+        if Exit_Button.value: confirm_exit()
         
         for ev in pge.events:
             if ev.type == pg.QUIT:

@@ -7,7 +7,7 @@ Config File
 
 # MetaData
 GAME_TITLE = 'Pixel Dungeon 2'
-GAME_VERSION = '1.0.2'
+GAME_VERSION = '1.0.3'
 
 """
 Screen Ids:
@@ -35,9 +35,6 @@ FPS_OPTIONS = [
     90,
     120,
     140,
-    280,
-    560,
-    1120
 ]
 RenderDistance_OPTIONS = [
     128,    # Px (W x H)
@@ -57,6 +54,7 @@ DEFAULT_CONFIG_JSON = {
     'fps':1,
     'dynamic_fps':True,
     'enable_mods':[],
+    'smooth_scroll':True,
     'RenderDistance':3
 }
 CONFIG:dict = DEFAULT_CONFIG_JSON
@@ -66,7 +64,7 @@ CONFIG:dict = DEFAULT_CONFIG_JSON
 import pygameengine as pyge
 from JPyDB import pyDatabase
 from ..mods.mods import Mods as ModsClass
-import os, random, math, sys, base64, pickle
+import os, random, math, sys, base64, pickle, shutil
 
 
 # Game Object
@@ -221,3 +219,87 @@ def split_lines(text, font, max_width) -> list[str,]:
                 cur_width += font.size(word)[0]
     
     return lines
+
+# Some Configs for the in Game
+elements = [
+        'fire',
+        'air',
+        'water',
+        'earth',
+        'light',
+        'dark',
+        'thunder',
+        'ice',
+]
+difficulties = [
+    'easy',
+    'medium',
+    'hard',
+    'extreme'
+]
+colors = {
+    'difficulty':{
+        '0':P_PEAR,
+        '1':pge.Colors.GREEN,
+        '2':pge.Colors.YELLOW,
+        '3':pge.Colors.RED
+    },
+    'element':{
+        '0':pge.Colors.RED,
+        '1':pge.Colors.LIGHTGRAY,
+        '2':pge.Colors.BLUE,
+        '3':pge.Colors.BROWN,
+        '4':pge.Colors.YELLOW,
+        '5':pge.Colors.DARKPURPLE,
+        '6':pge.Colors.LIGHTBLUE,
+        '7':pge.Colors.GAINSBORO
+    }
+}
+
+# Widgets for the Screen
+class Menu:
+    def __init__(self):
+        self.run_built()
+        
+    def run_built(self):
+        # Exit Screen Buttons
+        self.ExitMenu_ConfirmButton = pyge.Button(pge, (50*RATIO, 130*RATIO), PPF16, 'Confirm (Y)', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
+        self.ExitMenu_CancelButton = pyge.Button(pge, (400*RATIO, 130*RATIO), PPF16, 'Cancel (N)', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+        
+        # Main Menu Buttons
+        self.MainMenu_PlayButton = pyge.Button(pge, (25*RATIO, 100*RATIO), PPF26, 'PLAY', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+        self.MainMenu_OptionsButton = pyge.Button(pge, (25*RATIO, 138*RATIO), PPF26, 'OPTIONS', [P_LIGHTBLUE, P_DARKGRAY, pge.Colors.BLACK])
+        self.MainMenu_ModsButton = pyge.Button(pge, (25*RATIO, 176*RATIO), PPF26, 'MODS', [P_YELLOW, P_DARKGRAY, pge.Colors.BLACK])
+        self.MainMenu_ExitButton = pyge.Button(pge, (25*RATIO, 214*RATIO), PPF26, 'EXIT', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
+        
+        # Options Menu Buttons
+        self.OptionsMenu_VolumeSlider = pyge.Slider(pge, (20*RATIO, 100*RATIO), (740*RATIO,30*RATIO), [P_PEAR, P_DARKGRAY, P_DARKGRAY],value=CONFIG['volume'], fill_passed=True)
+        self.OptionsMenu_ScreenSizeDropdown = pyge.Dropdown(pge, (250*RATIO, 140*RATIO), [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c[0]}x{c[1]}' for c in SCREEN_SIZE_OPTIONS], PPF14, current_text=CONFIG['screen_size'], tip=('Screen Size, using the size of your monitor with Fullscreen ON will make it gives a quality gain.',PPF10))
+        self.OptionsMenu_FPSSelect =pyge.Select(pge, (130*RATIO, 180*RATIO),PPF14, [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c}' for c in FPS_OPTIONS], CONFIG['fps'], False, tip=('Sets the limit that the game will run of FPS.',PPF10))
+        self.OptionsMenu_FullscreenCheckbox = pyge.Checkbox(pge, (20*RATIO, 220*RATIO), PPF14, 'Fullscreen', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY],tip=('Enables fullscreen mode.',PPF10))
+        self.OptionsMenu_FPSCheckbox = pyge.Checkbox(pge, (20*RATIO, 260*RATIO), PPF14, 'Show FPS', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY],tip=('Shows FPS counter.',PPF10))
+        self.OptionsMenu_DynamicFPSCheckbox = pyge.Checkbox(pge, (20*RATIO, 300*RATIO), PPF14, 'Dynamic FPS', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY],tip=('Will make the Time system work better with FPS floating.',PPF10))
+        self.OptionsMenu_RenderDistanceDropdown = pyge.Dropdown(pge, (300*RATIO, 380*RATIO), [pge.Colors.WHITE, pge.Colors.BLACK, P_DARKGRAY], [f'{c}' for c in RenderDistance_OPTIONS], PPF14, current_text=CONFIG['RenderDistance'], tip=('Render Distance in pixels.',PPF10))
+        self.OptionsMenu_BackButton = pyge.Button(pge, (5*RATIO, 5*RATIO), PPF12, '< BACK', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+        self.OptionsMenu_SmoothMouseScrollCheckbox = pyge.Checkbox(pge, (20*RATIO, 340*RATIO), PPF14, 'Smooth Mouse Scroll', [pge.Colors.WHITE, P_LIGHTRED, P_LIGHTGREEN, P_DARKGRAY],tip=('Enables smooth mouse scrolling.',PPF10))
+        
+        # Game Select Menu Buttons
+        self.GameSelectMenu_BackButton = pyge.Button(pge, (5*RATIO, 5*RATIO), PPF12, '< BACK', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+        self.GameSelectMenu_CreateSaveButton = pyge.Button(pge, (10*RATIO, 550*RATIO), PPF20, 'CREATE SAVE', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+        self.GameSelectMenu_LoadSaveButton = pyge.Button(pge, (600*RATIO, 550*RATIO), PPF20, 'LOAD SAVE', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+        self.GameSelectMenu_ConfirmDeleteButton = pyge.Button(pge, (40*RATIO, 350*RATIO), PPF20, 'CONFIRM(y)', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
+        self.GameSelectMenu_CancelDeleteButton = pyge.Button(pge, (250*RATIO, 350*RATIO), PPF20, 'CANCEL(n)', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+        
+        # Create Save Menu Buttons
+        self.CreateSaveMenu_DifficultiesSelect = pyge.Select(pge, (40*RATIO, 210*RATIO), PPF16, [P_PEAR, P_DARKGRAY, pge.Colors.BLACK], difficulties, 1, True)
+        self.CreateSaveMenu_ElementsDropdown = pyge.Dropdown(pge, (40*RATIO,290*RATIO), [P_PEAR, P_DARKGRAY, pge.Colors.BLACK], elements, PPF16, current_text=random.randint(0, len(elements)-1), tip=('The starting element set for the game.',PPF10))
+        self.CreateSaveMenu_NameTextbox = pyge.Textbox(pge, (40*RATIO, 130*RATIO), 20, [pge.Colors.DARKGRAY, pge.Colors.DARKGREEN, pge.Colors.WHITE, pge.Colors.WHITE], PPF16, '')
+        self.CreateSaveMenu_SaveButton = pyge.Button(pge, (40*RATIO, 370*RATIO), PPF20, 'SAVE', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+        self.CreateSaveMenu_CancelButton = pyge.Button(pge, (300*RATIO, 370*RATIO), PPF20, 'CANCEL', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
+        
+        # Mods
+        self.ModsMenu_BackButton = pyge.Button(pge, (5*RATIO, 5*RATIO), PPF12, '< BACK', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+        self.ModsMenu_LongText = pyge.Longtext(pge, (0, (DEFAULT_SCREEN_SIZE[1]-100)*RATIO), PPF14, f'A Total of: {mods.number_of_mods()} mods loaded!\nPlease be careful about the mods you use, mods can be used for scam peoples, and then, steal information.', [pge.Colors.WHITE, P_DARKGRAY, pge.Colors.BROWN])
+        self.ModsMenu_LongText2 = pyge.Longtext(pge, (20*RATIO, 550*RATIO), PPF14,  '! Be careful about the mods you use, mods can be used for scam peoples, and then, steal information. More Mods = Minus Perfomance.', [pge.Colors.WHITE, pge.Colors.BLACK, pge.Colors.BLACK])
+        
+GameMenu = Menu()

@@ -1,5 +1,5 @@
 pygame
-maxpygame>=0.1.6.1
+maxpygame
 requests
 xlwt
-JPyDB # Ignore
+JPyDB

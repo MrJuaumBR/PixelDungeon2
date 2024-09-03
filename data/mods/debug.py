@@ -5,7 +5,7 @@ MTD_Mod_Version: 0.0.1
 MTD_Mod_Description: just a mod for debugging
 """
 
-import pygameengine, JPyDB,os, signal
+import pygameengine, JPyDB,os, signal, time
 
 class Mod:
     engine: pygameengine.PyGameEngine
@@ -26,6 +26,7 @@ class Mod:
         self.screens_widgets['options'] = {}
         self.screens_widgets['options']['ClearSavesBtn'] = pygameengine.Button(self.engine, (20*RATIO, 440*RATIO), self.engine._findFont(6),'Clear Saves', [self.engine.Colors.WHITE, self.engine.Colors.DARKGRAY, self.engine.Colors.GRAY])
         self.screens_widgets['options']['DeleteDatabaseBtn'] = pygameengine.Button(self.engine, (20*RATIO, 480*RATIO), self.engine._findFont(6),'Delete Database', [self.engine.Colors.WHITE, self.engine.Colors.DARKGRAY, self.engine.Colors.GRAY])
+        self.screens_widgets['options']['OutputDatabaseBtn'] = pygameengine.Button(self.engine, (20*RATIO, 520*RATIO), self.engine._findFont(6),'Output Database', [self.engine.Colors.WHITE, self.engine.Colors.DARKGRAY, self.engine.Colors.GRAY])
         
         
         self.screens_widgets['save_select'] = {}
@@ -91,13 +92,14 @@ class Mod:
                 pyd.database.delete_values('saves', save['id'])
             pyd.save()
             print('Saves Cleared')
-            # pyd.get_content()
-            # for value in pyd.database.tables['saves']
-            # pyd.database.delete_all('saves')
-            # pyd.save()
-            # print('Saves Cleared')
         if self.screens_widgets['options']['DeleteDatabaseBtn'].value:
             pyd.deleteDatabase()
             print('Database Deleted\nExiting...')
             os.kill(self.gameObj.pid, signal.SIGTERM)
             self.engine.exit()
+            
+        if self.screens_widgets['options']['OutputDatabaseBtn'].value:
+            print('\n\nDatabase Output:\n')
+            pyd.get_content()
+            print('\n\n')
+            time.sleep(1)
