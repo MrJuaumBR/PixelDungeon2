@@ -33,6 +33,7 @@ class Mod:
         self.screens_widgets['save_select']['NewWorldForSelectedBtn'] = pygameengine.Button(self.engine, (240*RATIO, 525*RATIO), self.engine._findFont(10),'Regenerate World(Selected)', [self.engine.Colors.WHITE, self.engine.Colors.DARKGRAY, self.engine.Colors.GRAY])
         
         self.screens_widgets['in_game'] = {}
+        self.screens_widgets['in_game']['ShowMenuBtn'] = pygameengine.Button(self.engine, (1*RATIO, 14*RATIO), self.engine._findFont(11),'Show Menu', [self.engine.Colors.WHITE, self.engine.Colors.DARKGRAY, self.engine.Colors.GRAY])
         
 
     def screen_handler(self, game_engine: pygameengine.PyGameEngine, game_object:object, kwargs:dict={}):
@@ -61,9 +62,12 @@ class Mod:
                 self.in_game()
     
     def in_game(self):
+        RATIO = self.gameObj.ratio
         self.engine.draw_widgets(self.screens_widgets['in_game'].values())
-        if 'game_variables' in self.kwargs.keys():
-            game_variables:dict = self.kwargs['game_variables']
+        if 'world' in self.kwargs.keys():
+            world = self.kwargs['world']
+            self.engine.draw_text((1*RATIO, 1*RATIO), f'Offset: {world.offset.xy}', self.engine._findFont(10), self.engine.Colors.WHITE)
+
             
     
     def save_select(self):

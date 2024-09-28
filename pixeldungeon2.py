@@ -107,8 +107,8 @@ def main():
         pge.draw_widgets(main_widgets)        
         mods.draw_mods(pge,GameObject)
         pge.update()
-        pge.fill(pge.Colors.BLACK)
         pge.fpsw()
+        pge.fill(pge.Colors.BLACK)
 
 
 def run():

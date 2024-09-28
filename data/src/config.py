@@ -37,11 +37,11 @@ FPS_OPTIONS = [
     140,
 ]
 RenderDistance_OPTIONS = [
-    128,    # Px (W x H)
-    256,
     512,
-    1024,
-    2048
+    1024,    # Px (W x H)
+    2048,
+    4096,
+    8192,
 ]
 
 DEFAULT_CONFIG_JSON = {
@@ -85,6 +85,8 @@ pg = pyge.pg
 
 pge = pyge.PyGameEngine()
 
+TILE_SIZE:int = 32
+
 # Database
 pdb = pyDatabase('/data/savedata')
 db = pdb.database
@@ -107,6 +109,13 @@ else:
 
 if not ('saves' in db.tables.keys()):
     db.create_table('saves', [('data',bytes)])
+
+# Fix Config
+if CONFIG['fps'] > len(FPS_OPTIONS)-1: CONFIG['fps'] = DEFAULT_CONFIG_JSON['fps']
+if CONFIG['screen_size'] > len(SCREEN_SIZE_OPTIONS)-1: CONFIG['screen_size'] = DEFAULT_CONFIG_JSON['screen_size']
+
+db.update_value('cfg', 'data', 0, CONFIG)
+db.save()
 
 # Default Screen Size
 DEFAULT_SCREEN_SIZE = SCREEN_SIZE_OPTIONS[1]
@@ -259,6 +268,7 @@ colors = {
 # Widgets for the Screen
 class Menu:
     def __init__(self):
+        pge.limit_error_active = False # Disable limit error
         self.run_built()
         
     def run_built(self):
@@ -297,9 +307,33 @@ class Menu:
         self.CreateSaveMenu_SaveButton = pyge.Button(pge, (40*RATIO, 370*RATIO), PPF20, 'SAVE', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
         self.CreateSaveMenu_CancelButton = pyge.Button(pge, (300*RATIO, 370*RATIO), PPF20, 'CANCEL', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
         
+        # In Game Menu Buttons
+        self.InGame_ResumeButton = pyge.Button(pge, (15*RATIO, 55*RATIO), PPF12, 'RESUME', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+        self.InGame_SaveButton = pyge.Button(pge, (15*RATIO, 95*RATIO), PPF12, 'SAVE', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+        self.InGame_QuitButton = pyge.Button(pge, (15*RATIO, 135*RATIO), PPF12, 'QUIT', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+        self.InGame_QuitToDesktopButton = pyge.Button(pge, (15*RATIO, 175*RATIO), PPF12, 'QUIT TO DESKTOP', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+        
         # Mods
         self.ModsMenu_BackButton = pyge.Button(pge, (5*RATIO, 5*RATIO), PPF12, '< BACK', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
         self.ModsMenu_LongText = pyge.Longtext(pge, (0, (DEFAULT_SCREEN_SIZE[1]-100)*RATIO), PPF14, f'A Total of: {mods.number_of_mods()} mods loaded!\nPlease be careful about the mods you use, mods can be used for scam peoples, and then, steal information.', [pge.Colors.WHITE, P_DARKGRAY, pge.Colors.BROWN])
         self.ModsMenu_LongText2 = pyge.Longtext(pge, (20*RATIO, 550*RATIO), PPF14,  '! Be careful about the mods you use, mods can be used for scam peoples, and then, steal information. More Mods = Minus Perfomance.', [pge.Colors.WHITE, pge.Colors.BLACK, pge.Colors.BLACK])
+        
+# Tiles
+tiles_ids:dict = {
+    '0':'Sand',
+    '1':'Rock',
+    '2':'Dirt',
+    '3':'Grass',
+    '4':'Snow',
+    '5':'Water',
+    '6':'Red_Brick',
+    '7':'Green_Brick',
+    '8':'Blue_Brick',
+    '9':'Yellow_Brick',
+    '10':'Purple_Brick',
+    '11':'Door',
+    '':'air',
+    '-1':'Barrier'
+}
         
 GameMenu = Menu()

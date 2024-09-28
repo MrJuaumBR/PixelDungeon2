@@ -40,6 +40,7 @@ class Save:
         data:str = bytes(data).decode('utf-8')
         data:dict = literal_eval(data)
         
+        
         # Load
         self.opened_times = data['opened_times']
         self.id = data['id']

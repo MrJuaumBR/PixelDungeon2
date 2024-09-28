@@ -4,6 +4,7 @@ Make sure to read the [License](./LICENSE) File.
 
 Install the [requirments](#requirements)
 
+Please, see [machine requirements!](./min-requirements.md)
 
 ## Warns
 - ! We are working on a Map Editor for this game, so the update will be delayed while I and others are working on these 2 projects simultaneously, please be patient.
@@ -11,7 +12,7 @@ Install the [requirments](#requirements)
 
 # Changes
 **V1.0.3**
-- [ ] Start In-Game rework;
+- [x] Start In-Game rework;
 - [x] Re-work Widgets system;
 - [x] Change Some Widgets from Options;
 - [x] Remake Mods Screen;

@@ -1,163 +1,131 @@
-from typing import Any
 from .config import *
 
-class Tile(pyge.pg.sprite.Sprite):
-    id:str
-    type:str='base_tile'
-    position:pyge.pg.math.Vector2
-    start_pos:pyge.pg.math.Vector2
-    size:pyge.pg.math.Vector2
-    image:pyge.pg.SurfaceType
+TILE_SIZE = 32
+
+class BaseTile(pyge.pg.sprite.Sprite):
+    type:str = 'base_tile'
+    saveable:list[str,] = ['rect','position']
+    rect:pg.rect.RectType
+    position:pg.math.Vector2 = pg.math.Vector2(0,0)
     
-    canCollide:bool = True
-    canDamage:bool = False
+    frames:list[pg.surface.Surface,] = []
     
-    spritesheet:dict
-    def __init__(self, position:pyge.pg.math.Vector2, size:pyge.pg.math.Vector2) -> None:
+    animation_frame:int = 0
+    animation_frame_increment:float = 0.17
+    
+    world_offset:pg.math.Vector2 = pg.math.Vector2(0,0)
+    offset_rect:pg.rect.RectType = None
+    
+    RANGE:float = 3.0
+    def __init__(self, position:pg.math.Vector2) -> None:
         super().__init__()
-        self.rect = pyge.pg.Rect(*position.xy, *size.xy)
-        self.rect.x = position.x
-        self.rect.y = position.y
-        self.position = position
-        self.start_pos = position.copy()
-        self.size = size
-        self.id = self.generate_id()
         
-        self.load_spritesheet()
+        self.position.xy = position
+        self.rect = pg.Rect(*position.xy, TILE_SIZE, TILE_SIZE)
         
-    def load_spritesheet(self) -> None:
-        self.spritesheet = {}
-        self.spritesheet['idle'] = TILES_SPRITESHEET.image_at(pyge.pg.Rect(0,0,32,32), 0)
+        self.load_surface()
         
-        self.image = self.spritesheet['idle']
-        
-    def generate_id(self) -> str:
-        return f'{self.type}_{os.urandom(8).hex()}'
+    def load_surface(self):
+        pass
     
-    def update(self, *args: Any, **kwargs: Any) -> None:
-        # self.rect.topleft = self.position
-        return super().update(*args, **kwargs)
-    
-    def draw(self, surface:pyge.pg.SurfaceType, zoom):
-        
-        self.rect.width = self.size.x * zoom
-        self.rect.height = self.size.y * zoom
-        
-        self.rect.left = self.start_pos[0] * zoom
-        self.rect.top = self.start_pos[1] * zoom
-        
-        surface.blit(self.image, self.rect.topleft)
-        
-class Tile_barrier(Tile):
-    type = 'barrier'
-    
-    animate_clock:float = 1
-    animate_frame:int = 0
-    def __init__(self, position:pyge.pg.math.Vector2, size:pyge.pg.math.Vector2) -> None:
-        super().__init__(position, size)
-    
-    def load_spritesheet(self) -> None:
-        self.spritesheet = {}
-        self.spritesheet['idle'] = [TILES_SPRITESHEET.image_at(pyge.pg.Rect(0,0,32,32), 0), TILES_SPRITESHEET.image_at(pyge.pg.Rect(0,33,32,32), 0)]
-        
-        self.image = self.spritesheet['idle'][0]
-        
-    def animate(self) -> None:
-        add = self.animate_clock / FPS_OPTIONS[CONFIG['fps']]
-        
-        self.animate_frame += add
-        if int(self.animate_frame) > len(self.spritesheet['idle'])-1:
-            self.animate_frame = 0
+    def frame(self):
+        if len(self.frames) <= 0:
+            print('No Frames Loaded!')
+            surf = pg.Surface((32,32))
+            pge.draw_rect((0,0), (32,32), pge.Colors.random(), screen=surf)
             
-        self.image = self.spritesheet['idle'][int(self.animate_frame)]
-        
-    def update(self, *args: Any, **kwargs: Any) -> None:
-        self.animate()
-        return super().update(*args, **kwargs)
-        
-class Tile_water(Tile):
-    type = 'water'
+            self.frames.append(surf)
+            
+        return self.frames[int(self.animation_frame)]
     
-    animate_clock:float = 2 # Frames per second
-    animate_frame:int = 0
-    def __init__(self, position:pyge.pg.math.Vector2, size:pyge.pg.math.Vector2) -> None:
-        super().__init__(position, size)
-    
-    def load_spritesheet(self) -> None:
-        self.spritesheet = {}
-        self.spritesheet['idle'] = [TILES_SPRITESHEET.image_at(pyge.pg.Rect(33,0,32,32), 0), TILES_SPRITESHEET.image_at(pyge.pg.Rect(33,33,32,32), 0)]
+    def update(self, player):
+        self.offset_rect = pg.Rect(*(self.position.xy+self.world_offset).xy, TILE_SIZE, TILE_SIZE)
         
-        self.image = self.spritesheet['idle'][self.animate_frame]
+        self.animation_frame += self.animation_frame_increment
+        if self.animation_frame >= len(self.frames):
+            self.animation_frame = 0
+# Animated
+class Barrier(BaseTile):
+    type:str = 'barrier'
+    animation_frame_increment:float = 0.075
+    def load_surface(self):
+        i = TILES_SPRITESHEET.images_at([(0,0,32,32),(0,32,32,32)])
+        [self.frames.append(frame) for frame in i]
         
-    def animate(self):
-        # Adds 0.03 when Frames is running at 60
-        # Adjust Animation Speed for the current running FPS
-        # 0.03 = 60FPS
-        # f(fps) = 2 / fps
-        add = self.animate_clock / FPS_OPTIONS[CONFIG['fps']]
+class Water(BaseTile):
+    type:str = 'water'
+    animation_frame_increment:float = 0.075
+    def load_surface(self):
+        i = TILES_SPRITESHEET.images_at([pg.Rect(32,0,32,32),pg.Rect(32,32,32,32)])
+        [self.frames.append(frame) for frame in i]
+
+class Door(BaseTile):
+    type:str = 'door'
+    area:pg.rect.RectType
+    def load_surface(self):
+        self.frames = []
+        self.frames.append(TILES_SPRITESHEET.image_at(pg.Rect(384,32,32,32)))
+        self.area = pg.Rect(self.position.xy[0], self.position.xy[1],32*self.RANGE,32*self.RANGE)
         
-        self.animate_frame += add
-        if int(self.animate_frame) > len(self.spritesheet['idle'])-1:
-            self.animate_frame = 0
+    def update(self, player):
+        super().update(player)
+        self.area.center = self.offset_rect.center
+        if self.area.colliderect(player.rect):
+            print("Colliding Player!")
+
+# Static
+class Sand(BaseTile):
+    type:str = 'sand'
+    def load_surface(self):
+        self.frames.append(TILES_SPRITESHEET.image_at(pg.Rect(64,0,32,32)))
+
+class Stone(BaseTile):
+    type:str = 'stone'
+    def load_surface(self):
+        self.frames.append(TILES_SPRITESHEET.image_at(pg.Rect(96,0,32,32)))
+
+class Dirt(BaseTile):
+    type:str = 'dirt'
+    def load_surface(self):
+        self.frames.append(TILES_SPRITESHEET.image_at(pg.Rect(128,0,32,32)))
         
-        self.image = self.spritesheet['idle'][int(self.animate_frame)]
+class Grass(BaseTile):
+    type:str = 'grass'
+    def load_surface(self):
+        self.frames.append(TILES_SPRITESHEET.image_at(pg.Rect(160,0,32,32)))
         
-    def update(self, *args: Any, **kwargs: Any) -> None:
-        self.animate()
-        return super().update(*args, **kwargs)
+class Snow(BaseTile):
+    type:str = 'snow'
+    def load_surface(self):
+        self.frames.append(TILES_SPRITESHEET.image_at(pg.Rect(192,0,32,32)))
         
+class Red_Brick(BaseTile):
+    type:str = 'red_brick'
+    def load_surface(self):
+        self.frames = []
+        self.frames.append(TILES_SPRITESHEET.image_at(pg.Rect(224,0,32,32)))
+
+class Green_Brick(BaseTile):
+    type:str = 'green_brick'
+    def load_surface(self):
+        self.frames = []
+        self.frames.append(TILES_SPRITESHEET.image_at(pg.Rect(256,32,32,32)))
+
+class Blue_Brick(BaseTile):
+    type:str = 'blue_brick'
+    def load_surface(self):
+        self.frames = []
+        self.frames.append(TILES_SPRITESHEET.image_at(pg.Rect(288,0,32,32)))
         
-class Tile_sand(Tile):
-    type = 'sand'
-    def __init__(self, position:pyge.pg.math.Vector2, size:pyge.pg.math.Vector2) -> None:
-        super().__init__(position, size)
-    
-    def load_spritesheet(self) -> None:
-        self.spritesheet = {}
-        self.spritesheet['idle'] = TILES_SPRITESHEET.image_at(pyge.pg.Rect(65,0,32,32), 0)
-        
-        self.image = self.spritesheet['idle']
-        
-class Tile_rock(Tile):
-    type = 'rock'
-    def __init__(self, position:pyge.pg.math.Vector2, size:pyge.pg.math.Vector2) -> None:
-        super().__init__(position, size)
-    
-    def load_spritesheet(self) -> None:
-        self.spritesheet = {}
-        self.spritesheet['idle'] = TILES_SPRITESHEET.image_at(pyge.pg.Rect(97,0,32,32), 0)
-        
-        self.image = self.spritesheet['idle']
-        
-class Tile_dirt(Tile):
-    type = 'dirt'
-    def __init__(self, position:pyge.pg.math.Vector2, size:pyge.pg.math.Vector2) -> None:
-        super().__init__(position, size)
-    
-    def load_spritesheet(self) -> None:
-        self.spritesheet = {}
-        self.spritesheet['idle'] = TILES_SPRITESHEET.image_at(pyge.pg.Rect(129,0,32,32), 0)
-        
-        self.image = self.spritesheet['idle']
-        
-class Tile_grass(Tile):
-    type = 'grass'
-    def __init__(self, position:pyge.pg.math.Vector2, size:pyge.pg.math.Vector2) -> None:
-        super().__init__(position, size)
-    
-    def load_spritesheet(self) -> None:
-        self.spritesheet = {}
-        self.spritesheet['idle'] = TILES_SPRITESHEET.image_at(pyge.pg.Rect(161,0,32,32), 0)
-        
-        self.image = self.spritesheet['idle']
-        
-class Tile_snow(Tile):
-    type = 'snow'
-    def __init__(self, position:pyge.pg.math.Vector2, size:pyge.pg.math.Vector2) -> None:
-        super().__init__(position, size)
-    
-    def load_spritesheet(self) -> None:
-        self.spritesheet = {}
-        self.spritesheet['idle'] = TILES_SPRITESHEET.image_at(pyge.pg.Rect(193,0,32,32), 0)
-        
-        self.image = self.spritesheet['idle']
+class Yellow_Brick(BaseTile):
+    type:str = 'yellow_brick'
+    def load_surface(self):
+        self.frames = []
+        self.frames.append(TILES_SPRITESHEET.image_at(pg.Rect(320,0,32,32)))
+
+class Purple_Brick(BaseTile):
+    type:str = 'purple_brick'
+    def load_surface(self):
+        self.frames = []
+        self.frames.append(TILES_SPRITESHEET.image_at(pg.Rect(352,0,32,32)))
+

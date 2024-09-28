@@ -257,6 +257,8 @@ def create_save():
             if 'saves' in db.tables.keys():
                 db.add_value('saves', 'data',id=SS.id, value=SS.getData())
                 db.save()
+            else:
+                print('Error: "saves" table not found!')
             run = False
         
         for ev in pge.events:
@@ -412,6 +414,7 @@ def save_select():
                 
                 to_confirm_delete = False
                 to_delete_id = ''
+                current_save = None
             elif keys[pg.K_n]: # Cancel
                 to_confirm_delete = False
                 to_delete_id = ''
@@ -436,6 +439,7 @@ def save_select():
                     
                     to_confirm_delete = False
                     to_delete_id = ''
+                    current_save = None
                 elif cancel_delete_button.value: # Cancel
                     to_confirm_delete = False
                     to_delete_id = ''
