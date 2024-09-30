@@ -33,7 +33,7 @@ class Mod:
         self.screens_widgets['save_select']['NewWorldForSelectedBtn'] = pygameengine.Button(self.engine, (240*RATIO, 525*RATIO), self.engine._findFont(10),'Regenerate World(Selected)', [self.engine.Colors.WHITE, self.engine.Colors.DARKGRAY, self.engine.Colors.GRAY])
         
         self.screens_widgets['in_game'] = {}
-        self.screens_widgets['in_game']['ShowMenuBtn'] = pygameengine.Button(self.engine, (1*RATIO, 14*RATIO), self.engine._findFont(11),'Show Menu', [self.engine.Colors.WHITE, self.engine.Colors.DARKGRAY, self.engine.Colors.GRAY])
+        self.screens_widgets['in_game']['ShowMenuBtn'] = pygameengine.Button(self.engine, (1*RATIO, 28*RATIO), self.engine._findFont(13),'Show Menu', [self.engine.Colors.WHITE, self.engine.Colors.DARKGRAY, self.engine.Colors.GRAY])
         
 
     def screen_handler(self, game_engine: pygameengine.PyGameEngine, game_object:object, kwargs:dict={}):
@@ -64,9 +64,13 @@ class Mod:
     def in_game(self):
         RATIO = self.gameObj.ratio
         self.engine.draw_widgets(self.screens_widgets['in_game'].values())
-        if 'world' in self.kwargs.keys():
-            world = self.kwargs['world']
-            self.engine.draw_text((1*RATIO, 1*RATIO), f'Offset: {world.offset.xy}', self.engine._findFont(10), self.engine.Colors.WHITE)
+        world = self.kwargs['world']
+        player = self.kwargs['player']
+        
+        self.engine.draw_rect(player.rect_offset.topleft, (32,32), self.engine.Colors.LIGHTBLUE, screen=self.engine.screen)
+        
+        self.engine.draw_text((1*RATIO, 1*RATIO), f'World Offset(X,Y): {round(world.offset.x,1)},{round(world.offset.y,1)}, Player Offset(X,Y): {round(player.rect_offset.left,1)},{round(player.rect_offset.top,1)}', self.engine._findFont(12), self.engine.Colors.WHITE)
+        self.engine.draw_text((1*RATIO, 14*RATIO), f'World Offset(Player, [X,Y]): {round(player.world_offset.x,1)},{round(player.world_offset.y,1)}, Save ID: {player.save.id}', self.engine._findFont(12), self.engine.Colors.WHITE)
 
             
     

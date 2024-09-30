@@ -62,6 +62,7 @@ class Water(BaseTile):
 class Door(BaseTile):
     type:str = 'door'
     area:pg.rect.RectType
+    player_in_range:bool = False
     def load_surface(self):
         self.frames = []
         self.frames.append(TILES_SPRITESHEET.image_at(pg.Rect(384,32,32,32)))
@@ -70,8 +71,11 @@ class Door(BaseTile):
     def update(self, player):
         super().update(player)
         self.area.center = self.offset_rect.center
-        if self.area.colliderect(player.rect):
-            print("Colliding Player!")
+        
+        if self.area.contains(player.rect_offset):
+            self.player_in_range = True
+        else:
+            self.player_in_range = False
 
 # Static
 class Sand(BaseTile):

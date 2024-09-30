@@ -47,7 +47,6 @@ class World(pyge.pg.sprite.Group):
                 sprite.update(self.player)
             else:
                 sprite.update()
-                self.offset += sprite.movement
     
     def get_sprites(self):
         for y,line in enumerate(self.mpgen.map_grid):
@@ -67,7 +66,7 @@ class World(pyge.pg.sprite.Group):
                 
     
     def draw(self):
-        self.internal_surface.fill((0,0,0))
+        self.internal_surface.fill(self.save.background_color)
         for sprite in self.sprites():
             if sprite.type != 'player':
                 sprite:tiles.BaseTile
@@ -78,6 +77,15 @@ class World(pyge.pg.sprite.Group):
                 
                     sprite.world_offset = self.offset
                     f = pg.transform.scale(sprite.frame(),(TILE_SIZE*self.zoom,TILE_SIZE*self.zoom))
+                    if sprite.type == 'door':
+                        r = sprite.area.copy()
+                        r.center = sprite_pos.center
+                        x = pg.Surface((r.width,r.height),pg.SRCALPHA)
+                        x.fill((100,100,100))
+                        if sprite.player_in_range:
+                            x.fill(pge.Colors.YELLOW.rgb)
+                        pge.draw_text((r.left,r.top), f'{r.top}, {r.bottom}, {r.left}, {r.right}' ,PPF12, pge.Colors.WHITE, x)
+                        self.internal_surface.blit(x, r)
                     
                     self.internal_surface.blit(f, sprite_pos)
             elif sprite.type == 'player':
@@ -89,6 +97,7 @@ class World(pyge.pg.sprite.Group):
         self.draw_player()
         
     def draw_player(self):
+        F1 = pge.hasKeyPressed(pg.K_F1)
         sprite:Player = self.player
                 
         sprite_pos = pg.Rect(0,0,*sprite.frame().get_size())
@@ -96,10 +105,12 @@ class World(pyge.pg.sprite.Group):
         
         self.draw_fov.center = sprite_pos.center
         
-        self.offset.x += sprite.movement.x
-        self.offset.y += sprite.movement.y
+        self.offset.x += sprite.movement.x * sprite.speed
+        self.offset.y += sprite.movement.y * sprite.speed
         
-        pge.screen.blit(sprite.frame(), sprite_pos)
+        sprite.world_offset = self.offset
+        if not F1:
+            pge.screen.blit(sprite.frame(), sprite_pos)
     
     def loadData(self, data:dict):
         for key in data.keys():

@@ -231,7 +231,11 @@ def create_save():
     save_button = GameMenu.CreateSaveMenu_SaveButton
     cancel_button = GameMenu.CreateSaveMenu_CancelButton
     
-    create_save_widgets = [difficulties_select, elements_dropdown,name_textbox,save_button, cancel_button]
+    Red_Slider = GameMenu.CreateSaveMenu_RedSlider
+    Green_Slider = GameMenu.CreateSaveMenu_GreenSlider
+    Blue_Slider = GameMenu.CreateSaveMenu_BlueSlider
+    
+    create_save_widgets = [difficulties_select, elements_dropdown,name_textbox,save_button, cancel_button, Red_Slider, Green_Slider, Blue_Slider]
     while run:
         GAME_SCREEN = 6
         GameObject.screen_id = GAME_SCREEN
@@ -246,6 +250,9 @@ def create_save():
         
         pge.draw_text((10*RATIO, 260*RATIO), 'Element: ', PPF20, pge.Colors.WHITE)
         elements_dropdown.colors[0] = colors['element'][str(elements_dropdown.current_text)]
+        
+        pge.draw_text((285*RATIO, 100*RATIO), f'World Background Color: ({Red_Slider.value},{Green_Slider.value},{Blue_Slider.value})', PPF14, pge.Colors.WHITE)
+        pge.draw_rect((750*RATIO, 100*RATIO), (32*RATIO, 32*RATIO), (Red_Slider.value*255, Green_Slider.value*255, Blue_Slider.value*255))
         
         if cancel_button.value:
             run = False

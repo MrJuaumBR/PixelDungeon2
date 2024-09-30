@@ -31,18 +31,22 @@ class Player(pyge.pg.sprite.Sprite):
     
     damage:int = 5
     resistance:int = 3
-    speed:int = 1
+    speed:int = 5
     
     frames:list[pg.SurfaceType,] = []
     frame_count:float = 0
     
     rect:pg.rect.RectType = pg.rect.Rect(0,0,32,32)
+    world_offset:pg.math.Vector2 = pg.math.Vector2(0,0)
+    rect_offset:pg.rect.RectType = pg.Rect(0,0,32,32)
     def __init__(self, save, Savename:str, Saveelement:int) -> None:
         super().__init__()
         self.save = save
         self.name = Savename
         self.element = Saveelement
-        rect:pg.rect.RectType = pg.rect.Rect(0,0,32,32)
+        self.rect:pg.rect.RectType = pg.rect.Rect(0,0,32,32)
+        self.rect_offset.topleft -= self.world_offset
+        
         
     def update_attributtes(self):
         self.damage = 5 + self.status['atk'] * 0.5
@@ -94,6 +98,7 @@ class Player(pyge.pg.sprite.Sprite):
         self.input()
         
         self.rect.center = pge.screen.get_rect().center
+        self.rect_offset.topleft = self.rect.topleft - self.world_offset
         
     def getCorrectData(self) -> dict:
         return {key:value for key,value in self.__dict__.items() if key in Player.saveable}

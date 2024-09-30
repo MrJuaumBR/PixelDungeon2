@@ -304,8 +304,11 @@ class Menu:
         self.CreateSaveMenu_DifficultiesSelect = pyge.Select(pge, (40*RATIO, 210*RATIO), PPF16, [P_PEAR, P_DARKGRAY, pge.Colors.BLACK], difficulties, 1, True)
         self.CreateSaveMenu_ElementsDropdown = pyge.Dropdown(pge, (40*RATIO,290*RATIO), [P_PEAR, P_DARKGRAY, pge.Colors.BLACK], elements, PPF16, current_text=random.randint(0, len(elements)-1), tip=('The starting element set for the game.',PPF10))
         self.CreateSaveMenu_NameTextbox = pyge.Textbox(pge, (40*RATIO, 130*RATIO), 20, [pge.Colors.DARKGRAY, pge.Colors.DARKGREEN, pge.Colors.WHITE, pge.Colors.WHITE], PPF16, '')
-        self.CreateSaveMenu_SaveButton = pyge.Button(pge, (40*RATIO, 370*RATIO), PPF20, 'SAVE', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
-        self.CreateSaveMenu_CancelButton = pyge.Button(pge, (300*RATIO, 370*RATIO), PPF20, 'CANCEL', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
+        self.CreateSaveMenu_SaveButton = pyge.Button(pge, (40*RATIO, 550*RATIO), PPF20, 'SAVE', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])
+        self.CreateSaveMenu_CancelButton = pyge.Button(pge, (300*RATIO, 550*RATIO), PPF20, 'CANCEL', [P_LIGHTRED, P_DARKGRAY, pge.Colors.BLACK])
+        self.CreateSaveMenu_RedSlider = pyge.Slider(pge, (290*RATIO, 150*RATIO), (300*RATIO, 20*RATIO), [pge.Colors.DARKGRAY, pge.Colors.DARKRED, pge.Colors.WHITE], value=0, tip=('Red Color for the background.', PPF12))
+        self.CreateSaveMenu_GreenSlider = pyge.Slider(pge, (290*RATIO, 185*RATIO), (300*RATIO, 20*RATIO), [pge.Colors.DARKGRAY, pge.Colors.DARKGREEN, pge.Colors.WHITE], value=0, tip=('Green Color for the background.', PPF12))
+        self.CreateSaveMenu_BlueSlider = pyge.Slider(pge, (290*RATIO, 230*RATIO), (300*RATIO, 20*RATIO), [pge.Colors.DARKGRAY, pge.Colors.DARKBLUE, pge.Colors.WHITE], value=0, tip=('Blue Color for the background.', PPF12))
         
         # In Game Menu Buttons
         self.InGame_ResumeButton = pyge.Button(pge, (15*RATIO, 55*RATIO), PPF12, 'RESUME', [P_PEAR, P_DARKGRAY, pge.Colors.BLACK])

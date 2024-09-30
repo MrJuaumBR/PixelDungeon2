@@ -7,6 +7,7 @@ class Save:
     Savename:str
     Saveworld:World
     Saveplayer:Player
+    background_color:pyge.RGB = pyge.RGB(0,0,0)
     opened_times:int = 0
     def __init__(self, Savename, Savedifficulty, Saveelement) -> None:
         self.Savename = Savename
@@ -30,6 +31,8 @@ class Save:
         for key in self.__dict__.keys():
             if key in ['Saveplayer', 'Saveworld']:
                 correct_dict[key] = self.fix_dict(self.__dict__[key])
+            elif key == 'background_color':
+                correct_dict[key] = self.background_color.rgb
             else:
                 correct_dict[key] = self.__dict__[key]
         return base64.b64encode(str(correct_dict).encode('utf-8'))
@@ -52,3 +55,6 @@ class Save:
         
         self.Saveworld = World(self, self.Saveplayer, 0)
         self.Saveworld.loadData(data['Saveworld'])
+        
+        self.background_color = pyge.RGB(0,0,0)
+        self.background_color.__dict__ = data['background_color']
